@@ -1,11 +1,18 @@
-/*
-  ==============================================================================
-
-    DryWet.cpp
-    Created: 22 Dec 2025 1:42:27pm
-    Author:  Giovanni Dalla Villa
-
-  ==============================================================================
-*/
-
 #include "DryWet.h"
+
+#include <JuceHeader.h>
+
+DryWet::DryWet(float defaultDryWetRadio)
+{
+    dryWetRatio = defaultDryWetRadio;
+}
+
+DryWet::~DryWet()
+{
+    
+}
+
+void DryWet::prepareToPlay(double sampleRate, int maxNumSamples)
+{
+    drySignal.setSize(
+}

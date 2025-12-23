@@ -10,6 +10,8 @@
       <GROUP id="{3692BB63-DEAD-1487-E0B0-79A5529A5464}" name="DSP">
         <FILE id="DVSZf5" name="DryWet.cpp" compile="1" resource="0" file="Source/DryWet.cpp"/>
         <FILE id="mN8nN5" name="DryWet.h" compile="0" resource="0" file="Source/DryWet.h"/>
+        <FILE id="CXdq3j" name="Modulation.cpp" compile="1" resource="0" file="Source/Modulation.cpp"/>
+        <FILE id="wtHZCo" name="Modulation.h" compile="0" resource="0" file="Source/Modulation.h"/>
         <FILE id="lNg8Ri" name="Rotary.cpp" compile="1" resource="0" file="Source/Rotary.cpp"/>
         <FILE id="IXITEB" name="Rotary.h" compile="0" resource="0" file="Source/Rotary.h"/>
       </GROUP>

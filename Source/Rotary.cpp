@@ -1,11 +1,19 @@
-/*
-  ==============================================================================
-
-    Rotary.cpp
-    Created: 22 Dec 2025 1:43:38pm
-    Author:  Giovanni Dalla Villa
-
-  ==============================================================================
-*/
-
 #include "Rotary.h"
+
+#include <JuceHeader.h>
+
+FractionalDelay::FractionalDelay() {}
+FractionalDelay::~FractionalDelay() {}
+
+void FractionalDelay::prepareToPlay(double newSampleRate, float maxNumSamples)
+{
+    sampleRate = newSampleRate;
+    memorySize = roundToInt(<#const FloatType value#>)
+}
+
+void FractionalDelay::releaseResources()
+{
+    
+}
+
+
