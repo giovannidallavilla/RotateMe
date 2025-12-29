@@ -8,7 +8,7 @@ class LowFrequencyOscillator
     LowFrequencyOscillator(float defaultFrequency, float defaultPhase);
     ~LowFrequencyOscillator();
     
-    void prepareToPlay(float sampleRate);
+    void prepareToPlay(float newSampleRate);
     
     void releaseResources();
     
@@ -18,6 +18,8 @@ class LowFrequencyOscillator
     float generateSampleRight(float freq);
     
     void brake();
+    
+    void unBrake();
     
     void setChorus();
     

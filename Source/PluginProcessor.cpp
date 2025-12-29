@@ -110,7 +110,7 @@ void RotateMeAudioProcessor::parameterChanged(const String &parameterID, float n
         drywetter.setDWRatio(newValue);
     }
     
-    if (parameterID == Parameters::nameModSpeed)
+    if (parameterID == Parameters::nameModSpeed && !isBraked)
     {
         if (newValue == 0)
         {
@@ -137,11 +137,13 @@ void RotateMeAudioProcessor::parameterChanged(const String &parameterID, float n
             ampLfo.saveCurrentFrequency();
             pitchLfo.brake();
             ampLfo.brake();
+            isBraked = true;
         }
         else
         {
             pitchLfo.recoverLastFrequency();
             ampLfo.recoverLastFrequency();
+            isBraked = false;
         }
     }
     

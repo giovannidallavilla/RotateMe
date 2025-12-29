@@ -60,6 +60,8 @@ private:
     ParameterModulation timeModulation;
     ParameterModulation ampModulation;
     
+    bool isBraked;
+    
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (RotateMeAudioProcessor)
 };

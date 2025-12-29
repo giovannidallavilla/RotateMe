@@ -17,9 +17,9 @@ LowFrequencyOscillator::~LowFrequencyOscillator()
 }
 
 
-void LowFrequencyOscillator::prepareToPlay(float sampleRate)
+void LowFrequencyOscillator::prepareToPlay(float newSampleRate)
 {
-    sampleRate = sampleRate;
+    sampleRate = newSampleRate;
     samplePeriod = 1.0 / sampleRate;
     frequency.reset(sampleRate, 1.5);
 }
@@ -33,36 +33,49 @@ void LowFrequencyOscillator::brake()
 }
 
 
+void LowFrequencyOscillator::unBrake()
+{
+    frequency.reset(sampleRate, 1.4);
+    frequency.setTargetValue(currentFrequency);
+}
+
+
 void LowFrequencyOscillator::setChorus()
 {
-    if (frequency.getCurrentValue() < 0.8f)
-    {
-        frequency.reset(sampleRate, 1.4);
-    }
-    else
+    auto start = frequency.getCurrentValue();
+    frequency.setTargetValue(start);
+    
+    if (frequency.getTargetValue() >= 0.8f)
     {
         frequency.reset(sampleRate, 2.0);
     }
     frequency.setTargetValue(0.8);
+    saveCurrentFrequency();
 }
 
 
 void LowFrequencyOscillator::setTremolo(float newValue)
 {
-    frequency.reset(sampleRate, 1.4);
-    frequency.setTargetValue(newValue);
+    if (frequency.getTargetValue() >= 0.8f)
+    {
+        auto start = frequency.getCurrentValue();
+        frequency.setTargetValue(start);
+        frequency.reset(sampleRate, 1.4);
+        frequency.setTargetValue(newValue);
+        saveCurrentFrequency();
+    }
 }
 
 
 void LowFrequencyOscillator::saveCurrentFrequency()
 {
-    currentFrequency = frequency.getCurrentValue();
+    currentFrequency = frequency.getTargetValue();
 }
 
 
 void LowFrequencyOscillator::recoverLastFrequency()
 {
-    frequency.reset(sampleRate, 1.4);
+     frequency.reset(sampleRate, 1.4);
     frequency.setTargetValue(currentFrequency);
 }
 
