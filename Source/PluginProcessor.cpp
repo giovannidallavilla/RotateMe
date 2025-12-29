@@ -1,191 +1,165 @@
-/*
-  ==============================================================================
-
-    This file contains the basic framework code for a JUCE plugin processor.
-
-  ==============================================================================
-*/
-
 #include "PluginProcessor.h"
 #include "PluginEditor.h"
+#include "PluginParameters.h"
 
-//==============================================================================
+
+
 RotateMeAudioProcessor::RotateMeAudioProcessor()
-#ifndef JucePlugin_PreferredChannelConfigurations
-     : AudioProcessor (BusesProperties()
-                     #if ! JucePlugin_IsMidiEffect
-                      #if ! JucePlugin_IsSynth
-                       .withInput  ("Input",  juce::AudioChannelSet::stereo(), true)
-                      #endif
-                       .withOutput ("Output", juce::AudioChannelSet::stereo(), true)
-                     #endif
-                       )
-#endif
+: parameters(*this, nullptr, "RTY", Parameters::createParameterLayout()),
+    drywetter(Parameters::defaultDryWet),
+    rotary(),
+    saturator(Parameters::defaultSatAmount),
+    pitchLfo(0.8f, 0.0f),
+    ampLfo(0.8f, 0.0f),
+    timeModulation(Parameters::defaultPitchTime, 1.0),
+    ampModulation(Parameters::defaultAmpValue, 1.0)
+
 {
+    Parameters::addGlobalListener(parameters, this);
 }
+
 
 RotateMeAudioProcessor::~RotateMeAudioProcessor()
 {
+    
 }
 
-//==============================================================================
-const juce::String RotateMeAudioProcessor::getName() const
-{
-    return JucePlugin_Name;
-}
 
-bool RotateMeAudioProcessor::acceptsMidi() const
-{
-   #if JucePlugin_WantsMidiInput
-    return true;
-   #else
-    return false;
-   #endif
-}
-
-bool RotateMeAudioProcessor::producesMidi() const
-{
-   #if JucePlugin_ProducesMidiOutput
-    return true;
-   #else
-    return false;
-   #endif
-}
-
-bool RotateMeAudioProcessor::isMidiEffect() const
-{
-   #if JucePlugin_IsMidiEffect
-    return true;
-   #else
-    return false;
-   #endif
-}
-
-double RotateMeAudioProcessor::getTailLengthSeconds() const
-{
-    return 0.0;
-}
-
-int RotateMeAudioProcessor::getNumPrograms()
-{
-    return 1;   // NB: some hosts don't cope very well if you tell them there are 0 programs,
-                // so this should be at least 1, even if you're not really implementing programs.
-}
-
-int RotateMeAudioProcessor::getCurrentProgram()
-{
-    return 0;
-}
-
-void RotateMeAudioProcessor::setCurrentProgram (int index)
-{
-}
-
-const juce::String RotateMeAudioProcessor::getProgramName (int index)
-{
-    return {};
-}
-
-void RotateMeAudioProcessor::changeProgramName (int index, const juce::String& newName)
-{
-}
-
-//==============================================================================
 void RotateMeAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
 {
-    // Use this method as the place to do any pre-playback
-    // initialisation that you need..
+    rotary.prepareToPlay(sampleRate, samplesPerBlock);
+    saturator.prepareToPlay(2, samplesPerBlock, sampleRate);
+    drywetter.prepareToPlay(sampleRate, samplesPerBlock);
+    timeModulation.prepareToPlay(sampleRate);
+    ampModulation.prepareToPlay(sampleRate);
+    
+    pitchLfo.prepareToPlay(sampleRate);
+    ampLfo.prepareToPlay(sampleRate);
+    
+    pitchModulation.setSize(2, samplesPerBlock);
+    pitchModulation.clear();
+    gainModulation.setSize(2, samplesPerBlock);
+    gainModulation.clear();
 }
+
 
 void RotateMeAudioProcessor::releaseResources()
 {
-    // When playback stops, you can use this as an opportunity to free up any
-    // spare memory, etc.
+    rotary.releaseResources();
+    drywetter.releaseResources();
+    
+    pitchModulation.setSize(0, 0);
+    gainModulation.setSize(0, 0);
 }
-
-#ifndef JucePlugin_PreferredChannelConfigurations
-bool RotateMeAudioProcessor::isBusesLayoutSupported (const BusesLayout& layouts) const
-{
-  #if JucePlugin_IsMidiEffect
-    juce::ignoreUnused (layouts);
-    return true;
-  #else
-    // This is the place where you check if the layout is supported.
-    // In this template code we only support mono or stereo.
-    // Some plugin hosts, such as certain GarageBand versions, will only
-    // load plugins that support stereo bus layouts.
-    if (layouts.getMainOutputChannelSet() != juce::AudioChannelSet::mono()
-     && layouts.getMainOutputChannelSet() != juce::AudioChannelSet::stereo())
-        return false;
-
-    // This checks if the input layout matches the output layout
-   #if ! JucePlugin_IsSynth
-    if (layouts.getMainOutputChannelSet() != layouts.getMainInputChannelSet())
-        return false;
-   #endif
-
-    return true;
-  #endif
-}
-#endif
 
 void RotateMeAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::MidiBuffer& midiMessages)
 {
     juce::ScopedNoDenormals noDenormals;
-    auto totalNumInputChannels  = getTotalNumInputChannels();
-    auto totalNumOutputChannels = getTotalNumOutputChannels();
-
-    // In case we have more outputs than inputs, this code clears any output
-    // channels that didn't contain input data, (because these aren't
-    // guaranteed to be empty - they may contain garbage).
-    // This is here to avoid people getting screaming feedback
-    // when they first compile a plugin, but obviously you don't need to keep
-    // this code if your algorithm always overwrites all the output channels.
-    for (auto i = totalNumInputChannels; i < totalNumOutputChannels; ++i)
-        buffer.clear (i, 0, buffer.getNumSamples());
-
-    // This is the place where you'd normally do the guts of your plugin's
-    // audio processing...
-    // Make sure to reset the state if your inner loop is processing
-    // the samples and the outer loop is handling the channels.
-    // Alternatively, you can process the samples with the channels
-    // interleaved by keeping the same state.
-    for (int channel = 0; channel < totalNumInputChannels; ++channel)
-    {
-        auto* channelData = buffer.getWritePointer (channel);
-
-        // ..do something to the data...
-    }
+    
+    const auto numSamples = buffer.getNumSamples();
+    
+    pitchLfo.generateBlock(pitchModulation, numSamples);
+    ampLfo.generateBlock(gainModulation, numSamples);
+    timeModulation.processBlock(pitchModulation, numSamples);
+    ampModulation.processBlock(gainModulation, numSamples);
+    
+    drywetter.copyDrySignal(buffer);
+    saturator.processBlock(buffer);
+    rotary.processBlock(buffer, pitchModulation, gainModulation);
+//    for (int ch = 0; ch < buffer.getNumChannels(); ch++)
+//    {
+//        FloatVectorOperations::copy(buffer.getArrayOfWritePointers()[ch], pitchModulation.getArrayOfReadPointers()[ch], numSamples);
+//    }
+    drywetter.mixSignals(buffer);
 }
 
-//==============================================================================
+
 bool RotateMeAudioProcessor::hasEditor() const
 {
-    return true; // (change this to false if you choose to not supply an editor)
+    return false;
 }
+
 
 juce::AudioProcessorEditor* RotateMeAudioProcessor::createEditor()
 {
     return new RotateMeAudioProcessorEditor (*this);
 }
 
-//==============================================================================
-void RotateMeAudioProcessor::getStateInformation (juce::MemoryBlock& destData)
+
+void RotateMeAudioProcessor::setStateInformation(const void *data, int sizeInBytes)
 {
-    // You should use this method to store your parameters in the memory block.
-    // You could do that either as raw data, or use the XML or ValueTree classes
-    // as intermediaries to make it easy to save and load complex data.
+    std::unique_ptr<XmlElement> xmlState(getXmlFromBinary(data, sizeInBytes));
+    if (xmlState.get() != nullptr)
+        if (xmlState->hasTagName(parameters.state.getType()))
+            parameters.replaceState(ValueTree::fromXml(*xmlState));
 }
 
-void RotateMeAudioProcessor::setStateInformation (const void* data, int sizeInBytes)
+
+void RotateMeAudioProcessor::getStateInformation(juce::MemoryBlock &destData)
 {
-    // You should use this method to restore your parameters from this memory block,
-    // whose contents will have been created by the getStateInformation() call.
+    auto state = parameters.copyState();
+    std::unique_ptr<XmlElement> xml(state.createXml());
+    copyXmlToBinary(*xml, destData);
 }
 
-//==============================================================================
-// This creates new instances of the plugin..
+
+void RotateMeAudioProcessor::parameterChanged(const String &parameterID, float newValue)
+{
+    if (parameterID == Parameters::nameDryWet)
+    {
+        drywetter.setDWRatio(newValue);
+    }
+    
+    if (parameterID == Parameters::nameModSpeed && !isBraked)
+    {
+        if (newValue == 0)
+        {
+            pitchLfo.setChorus();
+            ampLfo.setChorus();
+        }
+        else
+        {
+            pitchLfo.setTremolo(6.0);
+            ampLfo.setTremolo(5.0);
+        }
+    }
+    
+    if (parameterID == Parameters::nameSatAmount)
+    {
+        saturator.setDrive(newValue);
+    }
+    
+    if (parameterID == Parameters::nameBrake)
+    {
+        if (newValue)
+        {
+            pitchLfo.saveCurrentFrequency();
+            ampLfo.saveCurrentFrequency();
+            pitchLfo.brake();
+            ampLfo.brake();
+            isBraked = true;
+        }
+        else
+        {
+            pitchLfo.recoverLastFrequency();
+            ampLfo.recoverLastFrequency();
+            isBraked = false;
+        }
+    }
+    
+    if (parameterID == Parameters::nameFrequency)
+    {
+//        pitchLfo.setFrequency(newValue);
+//        ampLfo.setFrequency(newValue);
+    }
+    
+}
+
+
+
 juce::AudioProcessor* JUCE_CALLTYPE createPluginFilter()
 {
     return new RotateMeAudioProcessor();
 }
+
+
