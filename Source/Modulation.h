@@ -5,44 +5,48 @@
 class LowFrequencyOscillator
 {
     public:
-    LowFrequencyOscillator(float defaultFrequency = 4.40);
+    LowFrequencyOscillator(float defaultFrequency);
     ~LowFrequencyOscillator();
     
-    void prepareToPlay(double sampleRate);
+    void prepareToPlay(float sampleRate);
     
-    void processBlock(AudioBuffer<float>& buffer, const int numSamples);
+    void releaseResources();
     
-    double processSample();
+    void generateBlock(AudioBuffer<float>& buffer, const int maxNumSamples);
     
-    void setFrequency(double newValue);
+    float generateSample();
     
+    void setFrequency(float newValue);
     
     private:
-    double currentPhase = 0.0;
-    double samplingPeriod = 1.0;
+    float samplePeriod = 1.0;
+    float phaseState = 0.0;
     
-    SmoothedValue<double, ValueSmoothingTypes::Multiplicative> frequency;
+    SmoothedValue<float, ValueSmoothingTypes::Multiplicative> frequency;
     
+    
+    
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(LowFrequencyOscillator)
 };
+
 
 class ParameterModulation
 {
     public:
-    ParameterModulation(const double defaultParameter = 0.0, const double defaultModAmont = 0.0);
+    ParameterModulation(const float defaultParameter, const float defaultAmount);
     ~ParameterModulation();
     
-    void prepareToPlay(double sampleRate);
+    void prepareToPlay(float sampleRate);
     
-    void setModAmount(const double newValue);
+    void processBlock(AudioBuffer<float>& buffer, const int maxNumSamples);
     
-    void setParameter(const double newValue);
+    void setAmount(const float newValue);
     
-    void processBlock(AudioBuffer<float>& buffer, const int numSamples);
-    
+    void setParameter(const float newValue);
     
     private:
-    SmoothedValue<double, ValueSmoothingTypes::Linear> parameter;
-    SmoothedValue<double, ValueSmoothingTypes::Linear> modAmount;
+    SmoothedValue<float, ValueSmoothingTypes::Linear> parameter;
+    SmoothedValue<float, ValueSmoothingTypes::Linear> amount;
     
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(ParameterModulation)
 };

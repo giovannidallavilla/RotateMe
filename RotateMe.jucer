@@ -11,6 +11,12 @@
         <FILE id="DVSZf5" name="DryWet.cpp" compile="1" resource="0" file="Source/DryWet.cpp"/>
         <FILE id="mN8nN5" name="DryWet.h" compile="0" resource="0" file="Source/DryWet.h"/>
         <FILE id="CXdq3j" name="Modulation.cpp" compile="1" resource="0" file="Source/Modulation.cpp"/>
+        <FILE id="xt1gCd" name="Saturation.cpp" compile="1" resource="0" file="Source/Saturation.cpp"/>
+        <FILE id="GML0RO" name="PluginParameters.h" compile="0" resource="0"
+              file="Source/PluginParameters.h"/>
+        <FILE id="PaTMzq" name="PluginParameters.cpp" compile="1" resource="0"
+              file="Source/PluginParameters.cpp"/>
+        <FILE id="VOGfdU" name="Saturation.h" compile="0" resource="0" file="Source/Saturation.h"/>
         <FILE id="wtHZCo" name="Modulation.h" compile="0" resource="0" file="Source/Modulation.h"/>
         <FILE id="lNg8Ri" name="Rotary.cpp" compile="1" resource="0" file="Source/Rotary.cpp"/>
         <FILE id="IXITEB" name="Rotary.h" compile="0" resource="0" file="Source/Rotary.h"/>

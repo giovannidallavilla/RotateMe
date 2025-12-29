@@ -1,95 +1,109 @@
 #include "Modulation.h"
 
-#include <JuceHeader.h>
 
+
+// LowFrequencyOscillator implementation
 LowFrequencyOscillator::LowFrequencyOscillator(float defaultFrequency)
 {
     frequency.setCurrentAndTargetValue(defaultFrequency);
 }
+
 
 LowFrequencyOscillator::~LowFrequencyOscillator()
 {
     
 }
 
-void LowFrequencyOscillator::prepareToPlay(double sampleRate)
+
+void LowFrequencyOscillator::prepareToPlay(float sampleRate)
 {
-    samplingPeriod = 1.0 / sampleRate;
+    samplePeriod = 1.0 / sampleRate;
     frequency.reset(sampleRate, 0.02);
 }
 
-void LowFrequencyOscillator::setFrequency(double newValue)
+
+void LowFrequencyOscillator::setFrequency(float newValue)
 {
+    // Value control to be implemented
     jassert(newValue > 0.0);
     
     frequency.setTargetValue(newValue);
 }
 
-double LowFrequencyOscillator::processSample()
-{
-    auto sampleValue = 0.0;
-    sampleValue = sin(currentPhase * MathConstants<double>::twoPi);
-    
-    const auto nextPhase = frequency.getNextValue() * samplingPeriod;
-    currentPhase += nextPhase;
-    currentPhase += static_cast<int>(currentPhase);
-    return sampleValue;
-}
 
-void LowFrequencyOscillator::processBlock(AudioBuffer<float> &buffer, const int numSamples)
+void LowFrequencyOscillator::generateBlock(AudioBuffer<float> &buffer, const int maxNumSamples)
 {
     const int numChannels = buffer.getNumChannels();
     auto data = buffer.getArrayOfWritePointers();
     
-    for (int s = 0; s < numSamples; s++)
+    for (int s = 0; s < maxNumSamples; s++)
     {
-        const double sampleValue = processSample();
+        const float sample = generateSample();
         
         for (int ch = 0; ch < numChannels; ch++)
         {
-            data[ch][s] = sampleValue;
+            data[ch][s] = sample;
         }
     }
 }
 
 
-ParameterModulation::ParameterModulation(const double defaultParameter, const double defaultModAmount)
+float LowFrequencyOscillator::generateSample()
+{
+    auto sample = 0.0;
+    
+    sample = sin(phaseState * MathConstants<float>::twoPi);
+    
+    
+    phaseState += (frequency.getNextValue() * samplePeriod);
+    phaseState -= static_cast<int>(phaseState);
+    
+    return sample;
+}
+
+
+
+// ParameterModulation implementation
+ParameterModulation::ParameterModulation(const float defaultParameter, const float defaultAmount)
 {
     parameter.setCurrentAndTargetValue(defaultParameter);
-    modAmount.setCurrentAndTargetValue(defaultModAmount);
+    amount.setCurrentAndTargetValue(defaultAmount);
 }
+
 
 ParameterModulation::~ParameterModulation()
 {
     
 }
 
-void ParameterModulation::prepareToPlay(double sampleRate)
+
+void ParameterModulation::prepareToPlay(float sampleRate)
 {
     parameter.reset(sampleRate, 0.02);
-    modAmount.reset(sampleRate, 0.02);
+    amount.reset(sampleRate, 0.02);
 }
 
-void ParameterModulation::processBlock(AudioBuffer<float> &buffer, const int numSamples)
+
+void ParameterModulation::processBlock(AudioBuffer<float> &buffer, const int maxNumSamples)
 {
     auto numChannels = buffer.getNumChannels();
     auto data = buffer.getArrayOfWritePointers();
     
     for (int ch = 0; ch < numChannels; ch++)
     {
-        FloatVectorOperations::add(data[ch], 1.0, numSamples);
-        FloatVectorOperations::multiply(data[ch], 0.5, numSamples);
+        FloatVectorOperations::add(data[ch], 1.0, maxNumSamples);
+        FloatVectorOperations::multiply(data[ch], 0.5, maxNumSamples);
     }
     
-    modAmount.applyGain(buffer, numSamples);
+    buffer.applyGain(amount.getCurrentValue());
     
     if (parameter.isSmoothing())
     {
-        for (int s = 0; s < numSamples; s++)
+        for (int s = 0; s < maxNumSamples; s++)
         {
             for (int ch = 0; ch < numChannels; ch++)
             {
-                data[ch][s] = ch ? parameter.getCurrentValue() : parameter.getNextValue();
+                data[ch][s] += ch ? parameter.getCurrentValue() : parameter.getNextValue();
             }
         }
     }
@@ -97,18 +111,19 @@ void ParameterModulation::processBlock(AudioBuffer<float> &buffer, const int num
     {
         for (int ch = 0; ch < numChannels; ch++)
         {
-            FloatVectorOperations::add(data[ch], parameter.getCurrentValue(), numSamples);
+            FloatVectorOperations::add(data[ch], parameter.getCurrentValue(), maxNumSamples);
         }
     }
 }
 
-void ParameterModulation::setParameter(const double newValue)
+
+void ParameterModulation::setAmount(const float newValue)
+{
+    amount.setTargetValue(newValue);
+}
+
+
+void ParameterModulation::setParameter(const float newValue)
 {
     parameter.setTargetValue(newValue);
 }
-
-void ParameterModulation::setModAmount(const double newValue)
-{
-    modAmount.setTargetValue(newValue);
-}
-

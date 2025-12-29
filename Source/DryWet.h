@@ -2,7 +2,7 @@
 
 #include <JuceHeader.h>
 
-#define DEFAULT_DW_RATIO = 0.5f
+#define DEFAULT_DW_RATIO 0.5f
 
 class DryWet
 {
@@ -16,12 +16,16 @@ class DryWet
     
     void setDWRatio(float newValues);
     
+    void copyDrySignal(const AudioBuffer<float>& buffer);
+    
     void mixSignals(AudioBuffer<float>& destinationBuffer);
     
     private:
     float dryWetRatio;
-    float dryGain;
-    float wetGain;
+    float dryGain = 0.0f;
+    float wetGain = 0.0f;
+    
+    void updateState();
     
     AudioBuffer<float> drySignal;
   
