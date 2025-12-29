@@ -24,6 +24,8 @@ class PitchDelay
     
     AudioBuffer<float> memory;
     
+    SmoothedValue<float> smoothedDelay[2];
+    
     
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(PitchDelay)
 };

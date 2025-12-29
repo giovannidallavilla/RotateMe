@@ -5,7 +5,7 @@
 class LowFrequencyOscillator
 {
     public:
-    LowFrequencyOscillator(float defaultFrequency);
+    LowFrequencyOscillator(float defaultFrequency, float defaultPhase);
     ~LowFrequencyOscillator();
     
     void prepareToPlay(float sampleRate);
@@ -14,13 +14,25 @@ class LowFrequencyOscillator
     
     void generateBlock(AudioBuffer<float>& buffer, const int maxNumSamples);
     
-    float generateSample();
+    float generateSampleLeft(float freq);
+    float generateSampleRight(float freq);
     
-    void setFrequency(float newValue);
+    void brake();
+    
+    void setChorus();
+    
+    void setTremolo(float newValue);
+    
+    void saveCurrentFrequency();
+    
+    void recoverLastFrequency();
     
     private:
+    float sampleRate;
     float samplePeriod = 1.0;
-    float phaseState = 0.0;
+    float phaseStateLeft = 0.0;
+    float currentFrequency = 1.0;
+    float phaseStateRight = MathConstants<float>::halfPi;
     
     SmoothedValue<float, ValueSmoothingTypes::Multiplicative> frequency;
     

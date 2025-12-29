@@ -9,12 +9,14 @@ namespace Parameters
     static const String nameModSpeed   = "MS";
     static const String nameSatAmount  = "SA";
     static const String nameBrake      = "BK";
+    static const String nameFrequency  = "FR";
 
     // === DEFAULT VALUES ===
     static const float defaultDryWet     = 0.5f;
     static const float defaultSatAmount  = 1.0f;
     static const int   defaultModSpeed   = 0;     // 0 = Slow, 1 = Fast
     static const bool  defaultBraking    = false;
+    static const float defaultFrequency = 0.8f;
 
     // === DSP DEFAULTS (non parametrici) ===
     static const float defaultPitchTime  = 0.006f;
@@ -46,9 +48,12 @@ namespace Parameters
             "Speed",
             StringArray { "Slow", "Fast" },
             defaultModSpeed));
+        
+//        params.push_back(std::make_unique<AudioParameterFloat>(ParameterID(nameFrequency, 4), "frequency",
+//                                                               NormalisableRange<float>(0.1f, 300.0f, 0.1f, 0.5f), defaultFrequency));
 
         params.push_back(std::make_unique<AudioParameterBool>(
-            ParameterID(nameBrake, 4),
+            ParameterID(nameBrake, 5),
             "Brake",
             defaultBraking));
 

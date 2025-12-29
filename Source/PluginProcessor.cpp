@@ -9,8 +9,8 @@ RotateMeAudioProcessor::RotateMeAudioProcessor()
     drywetter(Parameters::defaultDryWet),
     rotary(),
     saturator(Parameters::defaultSatAmount),
-    pitchLfo(Parameters::defaultModSpeed),
-    ampLfo(Parameters::defaultModSpeed),
+    pitchLfo(0.8f, 0.0f),
+    ampLfo(0.8f, 0.0f),
     timeModulation(Parameters::defaultPitchTime, 1.0),
     ampModulation(Parameters::defaultAmpValue, 1.0)
 
@@ -32,6 +32,9 @@ void RotateMeAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlo
     drywetter.prepareToPlay(sampleRate, samplesPerBlock);
     timeModulation.prepareToPlay(sampleRate);
     ampModulation.prepareToPlay(sampleRate);
+    
+    pitchLfo.prepareToPlay(sampleRate);
+    ampLfo.prepareToPlay(sampleRate);
     
     pitchModulation.setSize(2, samplesPerBlock);
     pitchModulation.clear();
@@ -63,6 +66,10 @@ void RotateMeAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juc
     drywetter.copyDrySignal(buffer);
     saturator.processBlock(buffer);
     rotary.processBlock(buffer, pitchModulation, gainModulation);
+//    for (int ch = 0; ch < buffer.getNumChannels(); ch++)
+//    {
+//        FloatVectorOperations::copy(buffer.getArrayOfWritePointers()[ch], pitchModulation.getArrayOfReadPointers()[ch], numSamples);
+//    }
     drywetter.mixSignals(buffer);
 }
 
@@ -107,13 +114,13 @@ void RotateMeAudioProcessor::parameterChanged(const String &parameterID, float n
     {
         if (newValue == 0)
         {
-            pitchLfo.setFrequency(0.8f);
-            ampLfo.setFrequency(0.8f);
+            pitchLfo.setChorus();
+            ampLfo.setChorus();
         }
         else
         {
-            pitchLfo.setFrequency(6.0f);
-            ampLfo.setFrequency(5.0f);
+            pitchLfo.setTremolo(6.0);
+            ampLfo.setTremolo(5.0);
         }
     }
     
@@ -124,8 +131,24 @@ void RotateMeAudioProcessor::parameterChanged(const String &parameterID, float n
     
     if (parameterID == Parameters::nameBrake)
     {
-        pitchLfo.setFrequency(0.0f);
-        ampLfo.setFrequency(0.0f);
+        if (newValue)
+        {
+            pitchLfo.saveCurrentFrequency();
+            ampLfo.saveCurrentFrequency();
+            pitchLfo.brake();
+            ampLfo.brake();
+        }
+        else
+        {
+            pitchLfo.recoverLastFrequency();
+            ampLfo.recoverLastFrequency();
+        }
+    }
+    
+    if (parameterID == Parameters::nameFrequency)
+    {
+//        pitchLfo.setFrequency(newValue);
+//        ampLfo.setFrequency(newValue);
     }
     
 }
