@@ -10,13 +10,15 @@ namespace Parameters
     static const String nameSatAmount  = "SA";
     static const String nameBrake      = "BK";
     static const String nameFrequency  = "FR";
+    static const String nameSatType    = "ST";
 
     // === DEFAULT VALUES ===
     static const float defaultDryWet     = 0.5f;
     static const float defaultSatAmount  = 1.0f;
     static const int   defaultModSpeed   = 0;     // 0 = Slow, 1 = Fast
     static const bool  defaultBraking    = false;
-    static const float defaultFrequency = 0.8f;
+    static const float defaultFrequency  = 0.8f;
+    static const int   defaultSatType    = 0;     // 0 = Asym, 1 = Hard
 
     // === DSP DEFAULTS (non parametrici) ===
     static const float defaultPitchTime  = 0.006f;
@@ -56,6 +58,9 @@ namespace Parameters
             ParameterID(nameBrake, 5),
             "Brake",
             defaultBraking));
+        
+        
+        params.push_back(std::make_unique<AudioParameterChoice>(ParameterID(nameSatType, 4), "Saturation Type",StringArray { "Tube", "Hard" }, defaultSatType));
 
         return { params.begin(), params.end() };
     }

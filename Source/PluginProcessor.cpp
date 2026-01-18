@@ -76,13 +76,13 @@ void RotateMeAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juc
 
 bool RotateMeAudioProcessor::hasEditor() const
 {
-    return false;
+    return true;
 }
 
 
 juce::AudioProcessorEditor* RotateMeAudioProcessor::createEditor()
 {
-    return new RotateMeAudioProcessorEditor (*this);
+    return new RotateMeAudioProcessorEditor (*this, parameters);
 }
 
 
@@ -151,6 +151,12 @@ void RotateMeAudioProcessor::parameterChanged(const String &parameterID, float n
     {
 //        pitchLfo.setFrequency(newValue);
 //        ampLfo.setFrequency(newValue);
+    }
+    
+    if (parameterID == Parameters::nameSatType)
+    {
+        int value = newValue == 1 ? 0 : 1;
+        saturator.setSatType(value);
     }
     
 }
