@@ -4,7 +4,7 @@
               jucerFormatVersion="1" version="1.0.0" companyName="LIM" companyWebsite="www.lim.di.unimi.it"
               pluginName="RotateMe" pluginDesc="Easy to use Leslie 740 emulation."
               pluginManufacturer="LIM" pluginManufacturerCode="LIM!" pluginCode="RoMe"
-              pluginChannelConfigs="{1,1}, {2,2}">
+              pluginChannelConfigs="{1,1}, {2,2}" defines="JUCE_MODAL_LOOPS_PERMITTED = 1">
   <MAINGROUP id="RSp2xU" name="RotateMe">
     <GROUP id="{8EED1B3B-227B-906B-EEF2-06F1C9D26800}" name="Source">
       <GROUP id="{3692BB63-DEAD-1487-E0B0-79A5529A5464}" name="DSP">

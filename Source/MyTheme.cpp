@@ -276,7 +276,93 @@ void MyLookAndFeel::drawLinearSlider(juce::Graphics &g, int x, int y, int width,
 }
 
 
+void MyLookAndFeel::drawButtonBackground(Graphics& g, Button& b, const Colour& backgroundColour,
+                          bool shouldDrawButtonAsHighlighted,
+                          bool shouldDrawButtonAsDown)
+{
+    int width = b.getWidth();
+    int height = b.getHeight();
+    float cornerSize = 7.0f;
+    float thickness = 2.0f;
+    auto buttonArea = b.getLocalBounds().toFloat().reduced(thickness / 2.0f);
+    if (shouldDrawButtonAsDown)
+    {
+        buttonArea = buttonArea.translated(0.0f, 1.5f);
+    }
+    
+    
+    g.setGradientFill(ColourGradient(
+                                     Colour::fromRGB(60, 60, 60),
+                                     0, 0,
+                                     Colour::fromRGB(29, 30, 31),
+                                     0, height,
+                                     true
+                                     ));
+    g.fillRoundedRectangle(buttonArea, cornerSize);
+    
+    
+    g.setGradientFill(ColourGradient(
+        Colours::white.withAlpha(0.6f),
+        0, 0,
+        Colours::black.withAlpha(0.1f),
+        0, height,
+        false
+    ));
+    g.drawRoundedRectangle(buttonArea, cornerSize, thickness);
+}
+
+
+//void MyLookAndFeel::drawButtonText (Graphics&, TextButton&, bool highlighted, bool down)
+//{
+//
+//}
+//
+//
+void MyLookAndFeel::drawLabel (Graphics& g, Label& l)
+{
+    if (!l.isBeingEdited())
+    {
+        auto alpha = (l.isEnabled()) ? 1.0f : 0.5f;
+        const Rectangle<float> area = l.getLocalBounds().toFloat();
+        float cornerSize = 7.0f;
+        float thickness = 2.0f;
+        
+        
+        g.setGradientFill(ColourGradient(
+                                         Colour::fromRGB(80, 80, 80),
+                                         0, 0,
+                                         Colour::fromRGB(40, 40, 40),
+                                         0, height,
+                                         true
+                                         ));
+        g.fillRoundedRectangle(area, cornerSize);
+        
+        
+        g.setGradientFill(ColourGradient(
+            Colours::white.withAlpha(0.6f),
+            0, 0,
+            Colours::black.withAlpha(0.1f),
+            0, height,
+            false
+        ));
+        g.drawRoundedRectangle(area, cornerSize, thickness);
+        
+        
+        g.setColour (l.findColour (juce::Label::textColourId).withAlpha (alpha));
+        g.setFont (getLabelFont (l));
+        
+        
+        auto textArea = getLabelBorderSize (l).subtractedFrom (l.getLocalBounds());
+                
+        g.drawText (l.getText(), textArea.toFloat(),
+                    l.getJustificationType(),
+                    true);
+    }
+}
+
+
 void MyLookAndFeel::setNumTicks(int newValue)
 {
     numTicks = newValue;
 }
+

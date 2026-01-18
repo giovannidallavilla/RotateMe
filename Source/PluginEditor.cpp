@@ -9,7 +9,7 @@ using namespace GUI;
 RotateMeAudioProcessorEditor::RotateMeAudioProcessorEditor (RotateMeAudioProcessor& p, AudioProcessorValueTreeState& valueTreeState)
     : AudioProcessorEditor (&p), audioProcessor (p), valueTreeState(valueTreeState)
 {
-    setSize (1280, 720);
+    setSize (width, height);
     
     
     setupSlider(satSlider, cmdPlateX, cmdPlateY, cmdKnobW, cmdKnobH, cmdKnobCorner + 0.5f);
@@ -29,12 +29,38 @@ RotateMeAudioProcessorEditor::RotateMeAudioProcessorEditor (RotateMeAudioProcess
     speedAttachment.reset(new SliderAttachment(valueTreeState, Parameters::nameModSpeed , speedSlider));
     brakeAttachment.reset(new SliderAttachment(valueTreeState, Parameters::nameBrake , brakeSlider));
     
-    this->setLookAndFeel(&myTheme);
     
+    addAndMakeVisible(presetBrowser);
+    addAndMakeVisible(nextPreset);
+    addAndMakeVisible(previousPreset);
+    addAndMakeVisible(load);
+    addAndMakeVisible(save);
+    
+    presetBrowser.setJustificationType(Justification::centred);
+    presetBrowser.setText(audioProcessor.getCurrentPresetName(), dontSendNotification);
+    
+    nextPreset.onClick = [this]
+    {
+        audioProcessor.loadPreset(audioProcessor.currentPresetIndex - 1);
+        updatePresetBrowser();
+    };
+    previousPreset.onClick = [this]
+    {
+        audioProcessor.loadPreset(audioProcessor.currentPresetIndex + 1);
+        updatePresetBrowser();
+    };
+    
+    
+    load.onClick = [this] { loadPreset(); };
+    save.onClick = [this] { savePreset(); };
+    
+    
+    this->setLookAndFeel(&myTheme);
     
     woodTexture = generateWoodTexture();
     commandPlateTexture = generatePlateTexture(cmdPlateW, cmdPlateH);
     presetPlateTexture = generatePlateTexture(presetPlateW, presetPlateH);
+    
 }
 
 RotateMeAudioProcessorEditor::~RotateMeAudioProcessorEditor()
@@ -68,25 +94,58 @@ void RotateMeAudioProcessorEditor::paint (juce::Graphics& g)
         BinaryData::Jauza_otf,
         BinaryData::Jauza_otfSize
     );
-    juce::FontOptions opts = FontOptions(typeface).withHeight(24.f).withStyle("plain");
+    juce::FontOptions opts = FontOptions(typeface).withHeight(48.f).withStyle("plain");
     juce::Font jauzaFont(opts);
     
     
     g.setColour(juce::Colours::lightgrey);
     g.setFont(jauzaFont);
-    g.drawText("RotateMe", 742, 140, 400, 400, juce::Justification::centred);
+    g.drawText("RotateMe", cmdPlateX + cmdPlateW, padding_top - 340, 600, 600, juce::Justification::centred);
     g.setFont(juce::FontOptions(15.0f));
     g.drawText("Speed", cmdPlateX + 20, cmdPlateY + 145, textBoxW, textBoxH, juce::Justification::centred);
     g.drawText("Saturation Type", cmdPlateX - 260 + cmdPlateW, cmdPlateY - 35, textBoxW + 26, textBoxH, juce::Justification::centred);
     g.drawText("Drive", cmdPlateX + 20, cmdPlateY - 35, textBoxW, textBoxH, juce::Justification::centred);
     g.drawText("Brake", cmdPlateX - 260 + cmdPlateW, cmdPlateY + 145, textBoxW, textBoxH, juce::Justification::centred);
     g.drawText("Dry/Wet", cmdPlateX + 120, cmdPlateY + 300, textBoxW, textBoxH, juce::Justification::centred);
+    
+    
+    Rectangle<float> upperHole(upperHoleX, upperHoleY, holeW, holeH);
+    Rectangle<float> bottomHole(bottomHoleX, bottomHoleY, holeW, holeH);
+    
+    
+    float holeCornerSize = 18.0f;
+    g.setGradientFill(ColourGradient(
+                                     Colour::fromRGB(40, 30, 20),
+                                     0, 0,
+                                     Colour::fromRGB(40, 30, 20),
+                                     holeW, 0,
+                                     true
+                                     ));
+    g.fillRoundedRectangle(upperHole, holeCornerSize);
+    g.fillRoundedRectangle(bottomHole, holeCornerSize);
+    g.setColour(juce::Colour::fromRGB(69, 50, 32));
+    g.drawRoundedRectangle(upperHole, plateCornerRadius, plateBorderThickness);
+    g.drawRoundedRectangle(bottomHole, plateCornerRadius, plateBorderThickness);
+    
 }
 void RotateMeAudioProcessorEditor::resized()
 {
     woodTexture = Image(Image::RGB, getWidth(), getHeight(), false);
     
     generateWoodTexture();
+    
+    addAndMakeVisible(presetBrowser);
+    addAndMakeVisible(nextPreset);
+    addAndMakeVisible(previousPreset);
+    addAndMakeVisible(load);
+    addAndMakeVisible(save);
+    
+    
+    presetBrowser.setBounds(presetPlateX + 40 + presetButtonW, presetPlateY + 20, presetLabelW, presetLabelH);
+    previousPreset.setBounds(presetPlateX + 20, presetPlateY + 20, presetButtonW, presetButtonH);
+    nextPreset.setBounds(presetPlateX + presetLabelW + 60 + presetButtonW, presetPlateY + 20, presetButtonW, presetButtonH);
+    load.setBounds(presetPlateX + 20, presetPlateY + 100, presetButtonW, presetButtonH);
+    save.setBounds(presetPlateX + presetLabelW + 60 + presetButtonW, presetPlateY + 100, presetButtonW, presetButtonH);
 }
 
 
@@ -204,3 +263,53 @@ Image RotateMeAudioProcessorEditor::generatePlateTexture(int width, int height)
     g.fillRoundedRectangle(0, 0, width, height, 12.0f);
     return texture;
 }
+
+
+void RotateMeAudioProcessorEditor::updatePresetBrowser()
+{
+    presetBrowser.setText(audioProcessor.getCurrentPresetName(), dontSendNotification);
+}
+
+
+void RotateMeAudioProcessorEditor::loadPreset()
+{
+    auto defaultLocation = File::getSpecialLocation(File::commonDocumentsDirectory);
+    FileChooser chooser("Select preset...", defaultLocation, "*.xml");
+    
+    if (chooser.browseForFileToOpen())
+    {
+        auto file = chooser.getResult();
+        MemoryBlock data;
+        
+        if (file.loadFileAsData(data))
+        {
+            audioProcessor.setStateInformation(data.getData(), (int)data.getSize());
+        }
+    }
+}
+
+
+void RotateMeAudioProcessorEditor::savePreset()
+{
+    auto defaultLocation = File::getSpecialLocation(File::commonDocumentsDirectory);
+    FileChooser chooser("Save preset...", defaultLocation, "*.xml");
+    
+    if (chooser.browseForFileToSave(true))
+    {
+        auto file = chooser.getResult();
+        if (file.existsAsFile())
+        {
+            file.deleteFile();
+        }
+        
+        FileOutputStream output(file);
+        if (output.openedOk())
+        {
+            MemoryBlock data;
+            audioProcessor.getStateInformation(data);
+            output.write(data.getData(), data.getSize());
+        }
+    }
+}
+
+

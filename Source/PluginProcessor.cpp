@@ -147,18 +147,24 @@ void RotateMeAudioProcessor::parameterChanged(const String &parameterID, float n
         }
     }
     
-    if (parameterID == Parameters::nameFrequency)
-    {
-//        pitchLfo.setFrequency(newValue);
-//        ampLfo.setFrequency(newValue);
-    }
-    
     if (parameterID == Parameters::nameSatType)
     {
         int value = newValue == 1 ? 0 : 1;
         saturator.setSatType(value);
     }
     
+}
+
+
+void RotateMeAudioProcessor::loadPreset(int index)
+{
+    index = jlimit(0, presets.size() - 1, index);
+    currentPresetIndex = index;
+}
+
+String RotateMeAudioProcessor::getCurrentPresetName() const
+{
+    return presets[currentPresetIndex];
 }
 
 

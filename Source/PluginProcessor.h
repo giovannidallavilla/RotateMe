@@ -37,9 +37,14 @@ public:
     void changeProgramName (int index, const juce::String& newName) override {};
 
     
+    String getCurrentPresetName() const;
+    int currentPresetIndex = 0;
+    
     //==============================================================================
     void getStateInformation (juce::MemoryBlock& destData) override;
     void setStateInformation (const void* data, int sizeInBytes) override;
+    StringArray presets = {"Init", "Warm", "Bright", "Deep"};
+    void loadPreset(int index);
 
     
 private:
@@ -61,6 +66,7 @@ private:
     ParameterModulation ampModulation;
     
     bool isBraked;
+    
     
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (RotateMeAudioProcessor)

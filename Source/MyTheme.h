@@ -33,6 +33,17 @@ class MyLookAndFeel : public LookAndFeel_V4
                            juce::Slider& slider) override;
     
     
+    void drawButtonBackground(Graphics& g, Button& b, const Colour& backgroundColour,
+                              bool shouldDrawButtonAsHighlighted,
+                              bool shouldDrawButtonAsDown) override;
+    
+    
+    //void drawButtonText (Graphics&, TextButton&, bool highlighted, bool down) override;
+    //
+    //
+    void drawLabel (Graphics&, Label&) override;
+    
+    
     private:
     
     int numTicks = 21;

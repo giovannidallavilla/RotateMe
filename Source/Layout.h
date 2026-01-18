@@ -29,8 +29,19 @@ namespace GUI
     constexpr int cmdKnobW = 120;
     constexpr int cmdKnobH = 120;
     constexpr float cmdKnobCorner = 0.25f;
+    constexpr int presetButtonW = 60;
+    constexpr int presetButtonH = 60;
+    constexpr int presetLabelW = presetPlateW - (2 * presetButtonW) - 80;
+    constexpr int presetLabelH = 60;
     
     constexpr int textBoxW = 74;
     constexpr int textBoxH = 21;
+    
+    constexpr int holeW = width - 60;
+    constexpr int holeH = 25;
+    constexpr int upperHoleX = 30;
+    constexpr int upperHoleY = 20;
+    constexpr int bottomHoleX = 30;
+    constexpr int bottomHoleY = height - holeH - 30;
     
 }
