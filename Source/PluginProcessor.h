@@ -44,12 +44,13 @@ public:
     //==============================================================================
     void getStateInformation (juce::MemoryBlock& destData) override;
     void setStateInformation (const void* data, int sizeInBytes) override;
-    StringArray presets = {"Init", "Warm", "Bright", "Deep"};
-    void loadPreset(int index);
+    void addPreset(const juce::String name, const void* data, int sizeInBytes);
+    void loadFactoryPreset(int index);
 
     
 private:
     void parameterChanged(const String& parameterID, float newValue) override;
+    void updateAllParameters();
     
     AudioProcessorValueTreeState parameters;
     
@@ -67,6 +68,15 @@ private:
     ParameterModulation ampModulation;
     
     bool isBraked;
+    
+    juce::StringArray factoryPresetsNames;
+    struct FactoryPresets
+    {
+        juce::String name;
+        const char* data;
+        int size;
+    };
+    std::vector<FactoryPresets> factoryPresets;
     
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (RotateMeAudioProcessor)

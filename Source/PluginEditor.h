@@ -73,6 +73,8 @@ private:
     void loadPreset();
     void savePreset();
     
+    int currentPreset = 0;
+    
     RotaryVisualizer rotaryVisualizer;
     
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (RotateMeAudioProcessorEditor)

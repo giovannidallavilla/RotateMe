@@ -15,4 +15,6 @@ namespace DSPValues {
     constexpr float delayDepth = 2.0f;
     
     constexpr float ampDepth = 1.0f;
+    
+    constexpr int presetCount = 1;
 }

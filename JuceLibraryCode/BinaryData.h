@@ -8,11 +8,14 @@
 
 namespace BinaryData
 {
+    extern const char*   Init_xml;
+    const int            Init_xmlSize = 199;
+
     extern const char*   Jauza_otf;
     const int            Jauza_otfSize = 16248;
 
     // Number of elements in the namedResourceList and originalFileNames arrays.
-    const int namedResourceListSize = 1;
+    const int namedResourceListSize = 2;
 
     // Points to the start of a list of resource names.
     extern const char* namedResourceList[];

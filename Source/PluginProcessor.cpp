@@ -17,6 +17,17 @@ RotateMeAudioProcessor::RotateMeAudioProcessor()
     ampModulation(Parameters::defaultAmpValue, 1.0)
 {
     Parameters::addGlobalListener(parameters, this);
+    factoryPresets = {
+        { "Init", BinaryData::Init_xml, BinaryData::Init_xmlSize },
+//        { "Warm", BinaryData::Warm_xml, BinaryData::Warm_xmlSize },
+//        { "Bright", BinaryData::Bright_xml, BinaryData::Bright_xmlSize },
+//        { "Deep", BinaryData::Deep_xml, BinaryData::Deep_xmlSize }
+    };
+    
+    for (const auto& p : factoryPresets)
+    {
+        factoryPresetsNames.add(p.name);
+    }
 }
 
 
@@ -86,7 +97,10 @@ void RotateMeAudioProcessor::setStateInformation(const void *data, int sizeInByt
     std::unique_ptr<XmlElement> xmlState(getXmlFromBinary(data, sizeInBytes));
     if (xmlState.get() != nullptr)
         if (xmlState->hasTagName(parameters.state.getType()))
+        {
             parameters.replaceState(ValueTree::fromXml(*xmlState));
+            updateAllParameters();
+        }
 }
 
 
@@ -155,16 +169,49 @@ void RotateMeAudioProcessor::parameterChanged(const String &parameterID, float n
 }
 
 
-void RotateMeAudioProcessor::loadPreset(int index)
+void RotateMeAudioProcessor::updateAllParameters()
 {
-    index = jlimit(0, presets.size() - 1, index);
-    currentPresetIndex = index;
+    std::vector<String> params = { "BK", "DW", "MS", "SA", "ST" };
+    for (auto& s : params)
+    {
+        auto p = parameters.getParameter(s);
+        p->sendValueChangedMessageToListeners(p->getValue());
+    }
+}
+
+
+void RotateMeAudioProcessor::loadFactoryPreset(int index)
+{
+    if (index < presetCount)
+    {
+        factoryPresets.resize(presetCount);
+        factoryPresetsNames.removeRange(presetCount, factoryPresetsNames.size() - presetCount);
+    }
+    if (isPositiveAndBelow(index, (int)factoryPresets.size()))
+    {
+        const auto preset = factoryPresets[index];
+        if (preset.data != nullptr && preset.size > 0)
+        {
+            setStateInformation(preset.data, preset.size);
+            currentPresetIndex = index;
+        }
+    }
+}
+
+
+void RotateMeAudioProcessor::addPreset(const juce::String name, const void *data, int sizeInBytes)
+{
+    FactoryPresets preset = { name, static_cast<const char*>(data), sizeInBytes };
+    factoryPresets.push_back(preset);
+    factoryPresetsNames.add(name);
+    int index = (int)factoryPresets.size() - 1;
+    loadFactoryPreset(index);
 }
 
 
 String RotateMeAudioProcessor::getCurrentPresetName() const
 {
-    return presets[currentPresetIndex];
+    return factoryPresetsNames[currentPresetIndex];
 }
 
 

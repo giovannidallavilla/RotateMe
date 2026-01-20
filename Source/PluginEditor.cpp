@@ -11,6 +11,8 @@ using namespace GUI;
 RotateMeAudioProcessorEditor::RotateMeAudioProcessorEditor (RotateMeAudioProcessor& p, AudioProcessorValueTreeState& valueTreeState)
     : AudioProcessorEditor (&p), audioProcessor (p), valueTreeState(valueTreeState), rotaryVisualizer(p)
 {
+    updatePresetBrowser();
+    
     setSize (width, height);
     
     setupSlider(satSlider, cmdPlateX, cmdPlateY, cmdKnobW, cmdKnobH, cmdKnobCorner + 0.5f);
@@ -40,13 +42,15 @@ RotateMeAudioProcessorEditor::RotateMeAudioProcessorEditor (RotateMeAudioProcess
     
     nextPreset.onClick = [this]
     {
-        audioProcessor.loadPreset(audioProcessor.currentPresetIndex - 1);
+        audioProcessor.loadFactoryPreset(audioProcessor.currentPresetIndex - 1);
+        currentPreset = audioProcessor.currentPresetIndex;
         updatePresetBrowser();
     };
     
     previousPreset.onClick = [this]
     {
-        audioProcessor.loadPreset(audioProcessor.currentPresetIndex + 1);
+        audioProcessor.loadFactoryPreset(audioProcessor.currentPresetIndex + 1);
+        currentPreset = audioProcessor.currentPresetIndex;
         updatePresetBrowser();
     };
     
@@ -281,8 +285,9 @@ void RotateMeAudioProcessorEditor::loadPreset()
         
         if (file.loadFileAsData(data))
         {
-            audioProcessor.setStateInformation(data.getData(), (int)data.getSize());
+            audioProcessor.addPreset(file.getFileNameWithoutExtension(), data.getData(), (int)data.getSize());
         }
+        updatePresetBrowser();
     }
 }
 

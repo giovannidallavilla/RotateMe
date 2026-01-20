@@ -7,6 +7,9 @@
               pluginChannelConfigs="{1,1}, {2,2}" defines="JUCE_MODAL_LOOPS_PERMITTED = 1">
   <MAINGROUP id="RSp2xU" name="RotateMe">
     <GROUP id="{8EED1B3B-227B-906B-EEF2-06F1C9D26800}" name="Source">
+      <GROUP id="{295CF788-5BDE-BEBC-28CA-AA8307ACCF83}" name="FactoryPresets">
+        <FILE id="ra5KVZ" name="Init.xml" compile="0" resource="1" file="../../../Desktop/Init.xml"/>
+      </GROUP>
       <GROUP id="{3692BB63-DEAD-1487-E0B0-79A5529A5464}" name="DSP">
         <FILE id="OZeuWz" name="DSPValues.h" compile="0" resource="0" file="Source/DSPValues.h"/>
         <FILE id="DVSZf5" name="DryWet.cpp" compile="1" resource="0" file="Source/DryWet.cpp"/>
