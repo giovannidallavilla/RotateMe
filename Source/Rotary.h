@@ -12,7 +12,7 @@ class PitchDelay
     
     void releaseResources();
     
-    void processBlock(AudioBuffer<float>& buffer, AudioBuffer<float>& modulation);
+    void processBlock(AudioBuffer<float>& buffer, AudioBuffer<float>& modulation, float pitchDepth);
     
     private:
     double sampleRate;
@@ -40,6 +40,8 @@ class Amplifier
     void releaseResources();
     
     void processBlock(AudioBuffer<float>& buffer, AudioBuffer<float>& modulation);
+    
+    void setDelayDepth(float newValue);
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(Amplifier)
 };
@@ -57,9 +59,12 @@ class Rotary
     
     void processBlock(AudioBuffer<float>& buffer, AudioBuffer<float>& timeModulation, AudioBuffer<float>& ampModulation);
     
+    void setPitchDepth(float newValue);
+    
     private:
     float sampleRate;
     float numSamples;
+    float pitchDepth;
     
     PitchDelay delay;
     Amplifier amp;

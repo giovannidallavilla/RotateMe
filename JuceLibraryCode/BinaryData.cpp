@@ -9,14 +9,35 @@
 namespace BinaryData
 {
 
-//================== Init.xml ==================
+//================== Bright.xml ==================
 static const unsigned char temp_binary_data_0[] =
+"VC2!\xdb\0\0\0<?xml version=\"1.0\" encoding=\"UTF-8\"?> <RTY><PARAM id=\"BK\" value=\"0.0\"/><PARAM id=\"DW\" value=\"0.6100000143051147\"/><PARAM id=\"MS\" value=\"0.0\"/><PARAM id=\"SA\" value=\"9.300000190734863\"/><PARAM id=\"ST\" value=\"0.0\"/"
+"></RTY>\0";
+
+const char* Bright_xml = (const char*) temp_binary_data_0;
+
+//================== Deep.xml ==================
+static const unsigned char temp_binary_data_1[] =
+"VC2!\xdb\0\0\0<?xml version=\"1.0\" encoding=\"UTF-8\"?> <RTY><PARAM id=\"BK\" value=\"0.0\"/><PARAM id=\"DW\" value=\"0.7970000505447388\"/><PARAM id=\"MS\" value=\"0.0\"/><PARAM id=\"SA\" value=\"5.960000038146973\"/><PARAM id=\"ST\" value=\"1.0\"/"
+"></RTY>\0";
+
+const char* Deep_xml = (const char*) temp_binary_data_1;
+
+//================== Warm.xml ==================
+static const unsigned char temp_binary_data_2[] =
+"VC2!\xdb\0\0\0<?xml version=\"1.0\" encoding=\"UTF-8\"?> <RTY><PARAM id=\"BK\" value=\"0.0\"/><PARAM id=\"DW\" value=\"0.2950000166893005\"/><PARAM id=\"MS\" value=\"1.0\"/><PARAM id=\"SA\" value=\"5.960000038146973\"/><PARAM id=\"ST\" value=\"1.0\"/"
+"></RTY>\0";
+
+const char* Warm_xml = (const char*) temp_binary_data_2;
+
+//================== Init.xml ==================
+static const unsigned char temp_binary_data_3[] =
 "VC2!\xbe\0\0\0<?xml version=\"1.0\" encoding=\"UTF-8\"?> <RTY><PARAM id=\"BK\" value=\"0.0\"/><PARAM id=\"DW\" value=\"1.0\"/><PARAM id=\"MS\" value=\"0.0\"/><PARAM id=\"SA\" value=\"0.0\"/><PARAM id=\"ST\" value=\"0.0\"/></RTY>\0";
 
-const char* Init_xml = (const char*) temp_binary_data_0;
+const char* Init_xml = (const char*) temp_binary_data_3;
 
 //================== Jauza.otf ==================
-static const unsigned char temp_binary_data_1[] =
+static const unsigned char temp_binary_data_4[] =
 { 79,84,84,79,0,13,0,128,0,3,0,80,67,70,70,32,50,124,58,39,0,0,7,88,0,0,46,91,68,83,73,71,0,0,0,2,0,0,63,112,0,0,0,8,71,68,69,70,1,202,2,5,0,0,55,212,0,0,0,52,71,80,79,83,236,179,6,6,0,0,56,8,0,0,5,118,71,83,85,66,25,111,209,196,0,0,61,128,0,0,1,240,79,
 83,47,50,50,108,205,183,0,0,1,64,0,0,0,96,99,109,97,112,176,159,151,38,0,0,4,148,0,0,2,194,104,101,97,100,38,192,244,139,0,0,0,220,0,0,0,54,104,104,101,97,7,205,4,86,0,0,1,20,0,0,0,36,104,109,116,120,222,39,24,233,0,0,1,160,0,0,2,244,109,97,120,112,0,
 189,80,0,0,0,1,56,0,0,0,6,110,97,109,101,2,34,110,207,0,0,53,180,0,0,1,255,112,111,115,116,255,159,0,50,0,0,55,180,0,0,0,32,0,1,0,0,0,1,0,0,115,72,126,55,95,15,60,245,0,3,3,232,0,0,0,0,225,133,31,0,0,0,0,0,225,171,146,93,255,251,255,46,4,126,3,32,0,0,
@@ -225,7 +246,7 @@ static const unsigned char temp_binary_data_1[] =
 0,136,0,140,0,141,0,147,0,150,0,154,0,156,0,157,0,1,0,72,0,11,0,28,0,32,0,36,0,40,0,44,0,48,0,52,0,56,0,60,0,64,0,68,0,1,0,178,0,1,0,179,0,1,0,180,0,1,0,181,0,1,0,182,0,1,0,183,0,1,0,184,0,1,0,185,0,1,0,186,0,1,0,187,0,1,0,188,0,1,0,11,0,65,0,76,0,135,
 0,136,0,140,0,141,0,147,0,150,0,154,0,156,0,157,0,1,0,20,0,1,0,8,0,1,0,4,0,177,0,3,0,79,0,16,0,1,0,1,0,48,0,0,0,1,0,0,0,1,0,0 };
 
-const char* Jauza_otf = (const char*) temp_binary_data_1;
+const char* Jauza_otf = (const char*) temp_binary_data_4;
 
 
 const char* getNamedResource (const char* resourceNameUTF8, int& numBytes);
@@ -239,6 +260,9 @@ const char* getNamedResource (const char* resourceNameUTF8, int& numBytes)
 
     switch (hash)
     {
+        case 0x9d6d7d72:  numBytes = 228; return Bright_xml;
+        case 0x29560a64:  numBytes = 228; return Deep_xml;
+        case 0x21782b7d:  numBytes = 228; return Warm_xml;
         case 0x13dfc088:  numBytes = 199; return Init_xml;
         case 0x3b062d87:  numBytes = 16248; return Jauza_otf;
         default: break;
@@ -250,12 +274,18 @@ const char* getNamedResource (const char* resourceNameUTF8, int& numBytes)
 
 const char* namedResourceList[] =
 {
+    "Bright_xml",
+    "Deep_xml",
+    "Warm_xml",
     "Init_xml",
     "Jauza_otf"
 };
 
 const char* originalFilenames[] =
 {
+    "Bright.xml",
+    "Deep.xml",
+    "Warm.xml",
     "Init.xml",
     "Jauza.otf"
 };

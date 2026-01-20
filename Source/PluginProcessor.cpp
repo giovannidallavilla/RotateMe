@@ -19,15 +19,17 @@ RotateMeAudioProcessor::RotateMeAudioProcessor()
     Parameters::addGlobalListener(parameters, this);
     factoryPresets = {
         { "Init", BinaryData::Init_xml, BinaryData::Init_xmlSize },
-//        { "Warm", BinaryData::Warm_xml, BinaryData::Warm_xmlSize },
-//        { "Bright", BinaryData::Bright_xml, BinaryData::Bright_xmlSize },
-//        { "Deep", BinaryData::Deep_xml, BinaryData::Deep_xmlSize }
+        { "Warm", BinaryData::Warm_xml, BinaryData::Warm_xmlSize },
+        { "Bright", BinaryData::Bright_xml, BinaryData::Bright_xmlSize },
+        { "Deep", BinaryData::Deep_xml, BinaryData::Deep_xmlSize }
     };
     
     for (const auto& p : factoryPresets)
     {
         factoryPresetsNames.add(p.name);
     }
+    
+    updateAllParameters();
 }
 
 
@@ -124,12 +126,14 @@ void RotateMeAudioProcessor::parameterChanged(const String &parameterID, float n
         if (newValue == 0)
         {
             pitchLfo.setChorus();
+            rotary.setPitchDepth(chorusDepth);
             ampLfo.setChorus();
             rotationSpeed.store(48.0f);
         }
         else
         {
             pitchLfo.setTremolo(6.0);
+            rotary.setPitchDepth(tremoloDepth);
             ampLfo.setTremolo(5.0);
             rotationSpeed.store(390.0f);
         }
@@ -154,6 +158,8 @@ void RotateMeAudioProcessor::parameterChanged(const String &parameterID, float n
         else
         {
             pitchLfo.recoverLastFrequency();
+            auto depth = (pitchLfo.getCurrentFrequency() == 6.0f) ? chorusDepth : tremoloDepth;
+            rotary.setPitchDepth(depth);
             ampLfo.recoverLastFrequency();
             auto freq = (ampLfo.getCurrentFrequency() == 5.0f) ? 390.0f : 48.0f;
             rotationSpeed.store(freq);

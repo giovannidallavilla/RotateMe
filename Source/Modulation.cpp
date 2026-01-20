@@ -47,6 +47,7 @@ void LowFrequencyOscillator::setChorus()
         frequency.reset(sampleRate, chorusRamp);
     }
     frequency.setTargetValue(0.8);
+    
     saveCurrentFrequency();
 }
 

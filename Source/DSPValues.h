@@ -12,9 +12,11 @@ namespace DSPValues {
     
     constexpr float maxDelayTimeS = 5.1f;
     constexpr float baseDelayMs = 6.0f;
-    constexpr float delayDepth = 2.0f;
+    constexpr float delayDepth = 1.0f;
+    constexpr float chorusDepth = 2.0f;
+    constexpr float tremoloDepth = 1.0f;
     
     constexpr float ampDepth = 1.0f;
     
-    constexpr int presetCount = 1;
+    constexpr int presetCount = 4;
 }
