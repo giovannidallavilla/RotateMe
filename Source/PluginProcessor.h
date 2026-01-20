@@ -39,6 +39,7 @@ public:
     
     String getCurrentPresetName() const;
     int currentPresetIndex = 0;
+    std::atomic<float> rotationSpeed { 0.0f };
     
     //==============================================================================
     void getStateInformation (juce::MemoryBlock& destData) override;
@@ -48,7 +49,7 @@ public:
 
     
 private:
-    void parameterChanged(const String& parameterID, float newValue);
+    void parameterChanged(const String& parameterID, float newValue) override;
     
     AudioProcessorValueTreeState parameters;
     
@@ -66,7 +67,6 @@ private:
     ParameterModulation ampModulation;
     
     bool isBraked;
-    
     
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (RotateMeAudioProcessor)

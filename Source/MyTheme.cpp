@@ -1,30 +1,31 @@
 #pragma once
 #include "MyTheme.h"
 #include "Layout.h"
+#include "PluginProcessor.h"
+#include "PluginProcessor.cpp"
 using namespace GUI;
 
 
+// MyLookAndFeel Class implementation
 MyLookAndFeel::MyLookAndFeel()
 {
         numTicks = 21;
 }
 
-MyLookAndFeel::~MyLookAndFeel()
-{
-    
-}
+
+MyLookAndFeel::~MyLookAndFeel() {}
+
 
 void MyLookAndFeel::drawRotarySlider(Graphics &g, int x, int y, int width, int height,
                                      float sliderPosProportional, float rotaryStartAngle,
                                      float rotaryEndAngle, Slider &slider)
 {
-    const float radius = (jmin(width, height) * 0.5f * KNOB_SCALE) - (BORDER_WIDTH * 0.5f);
+    const float radius = (jmin(width, height) * 0.5f * knobScale) - (borderWidth * 0.5f);
     const float cx = x + width * 0.5f;
     const float cy = y + height * 0.5f;
     const float kx = cx - radius;
     const float ky = cy - radius;
     const float kw = radius * 2.0f;
-    
     
     g.setGradientFill(ColourGradient(
         Colour::fromRGB(35, 38, 40),
@@ -35,7 +36,6 @@ void MyLookAndFeel::drawRotarySlider(Graphics &g, int x, int y, int width, int h
     ));
     g.fillEllipse(kx, ky, kw, kw);
 
-
     g.setGradientFill(ColourGradient(
         Colours::white.withAlpha(0.15f),
         cx - radius * 0.3f, cy - radius * 0.3f,
@@ -45,7 +45,6 @@ void MyLookAndFeel::drawRotarySlider(Graphics &g, int x, int y, int width, int h
     ));
     g.fillEllipse(kx, ky, kw, kw);
 
-
     g.setGradientFill(ColourGradient(
         Colours::white.withAlpha(0.4f),
         kx, ky,
@@ -54,7 +53,6 @@ void MyLookAndFeel::drawRotarySlider(Graphics &g, int x, int y, int width, int h
         false
     ));
     g.drawEllipse(kx, ky, kw, kw, 2.0f);
-    
     
     const float topW = radius * 0.55f;
     const float topH = radius * 1.40f;
@@ -75,7 +73,6 @@ void MyLookAndFeel::drawRotarySlider(Graphics &g, int x, int y, int width, int h
         false
     ));
     g.fillPath(top);
-    
 
     g.setGradientFill(juce::ColourGradient(
         juce::Colours::white.withAlpha(0.35f),
@@ -85,7 +82,6 @@ void MyLookAndFeel::drawRotarySlider(Graphics &g, int x, int y, int width, int h
         false
     ));
     g.fillPath(top);
-    
 
     g.setColour(juce::Colours::black.withAlpha(0.45f));
     g.strokePath(top, juce::PathStrokeType(1.2f));
@@ -117,20 +113,16 @@ void MyLookAndFeel::drawRotarySlider(Graphics &g, int x, int y, int width, int h
         g.drawLine(x1, y1, x2, y2, thickness);
     }
     
-    
     const float pointerLength = radius * 0.42f;
     const float pointerWidth  = radius * 0.10f;
     Path pointer;
     pointer.addRoundedRectangle(-pointerWidth * 0.5f, -radius * 0.75f, pointerWidth, pointerLength, pointerWidth * 0.4f);
-
     
     angle = jmap(sliderPosProportional, rotaryStartAngle, rotaryEndAngle);
     pointer.applyTransform(AffineTransform::rotation(angle).translated(cx, cy));
 
-
     g.setColour(Colours::black.withAlpha(0.25f));
     g.fillPath(pointer, AffineTransform::translation(1.5f, 1.5f));
-
 
     g.setGradientFill(ColourGradient(
         Colour::fromRGB(220, 220, 220),
@@ -141,7 +133,6 @@ void MyLookAndFeel::drawRotarySlider(Graphics &g, int x, int y, int width, int h
     ));
     g.fillPath(pointer);
 
-
     g.setGradientFill(ColourGradient(
         Colours::white.withAlpha(0.55f),
         cx, cy - radius * 0.6f,
@@ -150,7 +141,6 @@ void MyLookAndFeel::drawRotarySlider(Graphics &g, int x, int y, int width, int h
         true
     ));
     g.fillPath(pointer);
-
 
     g.setColour(Colours::black.withAlpha(0.4f));
     g.strokePath(pointer, PathStrokeType(1.0f));
@@ -165,16 +155,12 @@ void MyLookAndFeel::drawLinearSlider(juce::Graphics &g, int x, int y, int width,
 {
     const float trackHeight = height * 0.20f;
     const float trackY = y + (height - trackHeight) * 0.5f;
-    const float trackX = x;
-    const float trackWidth = width;
-    const float thumbRadius = height * 0.45f;
     const float thumbW = width * 0.16f;
     const float thumbH = height * 0.65f;
-    const float thumbX = sliderPos - thumbRadius * 0.5f;
+    const float thumbX = sliderPos - (thumbW * 0.5f);
     const float thumbY = y + (height - thumbH) * 0.5f;
     const float thumbCorner = 3.0f;
 
-    
     g.setGradientFill(juce::ColourGradient(
         juce::Colour::fromRGB(30, 30, 35),
         x, trackY,
@@ -184,10 +170,8 @@ void MyLookAndFeel::drawLinearSlider(juce::Graphics &g, int x, int y, int width,
     ));
     g.fillRect((float)x, trackY, (float)width, trackHeight);
 
-    
     g.setColour(juce::Colour::fromRGB(40, 40, 40));
     g.drawRect((float)x, trackY, (float)width, trackHeight);
-
 
     g.setGradientFill(juce::ColourGradient(
         juce::Colours::white.withAlpha(0.1f),
@@ -197,36 +181,32 @@ void MyLookAndFeel::drawLinearSlider(juce::Graphics &g, int x, int y, int width,
         false
     ));
     
+    if (abs(maxSliderPos - minSliderPos) < 1.0f)
+    {
+        minSliderPos = x;
+        maxSliderPos = x + width;
+    }
     
-    setNumTicks(50);
+    setNumTicks(51);
     for (int i = 0; i < numTicks; ++i)
     {
-        float t = (float)i / (float)(numTicks - 1);
-        float a = trackX + t * (trackWidth);
-        float thickness = 1.0f;
         float length = 10.0f;
-        thickness = (i % 10 == 0 ? 1.5f : 1.0f);
-        length    = (i % 10 == 0 ? 30.0f : 10.0f);
-        float x1 = trackX + a;
-        float y1 = trackY - (length * 0.5f);
-        float x2 = trackX + a;
-        float y2 = trackY + (length * 0.5f);
+        length = (i % 10 == 0) ? 30.0f : 10.0f;
+        float thickness = 1.0f;
+        thickness = (i % 10 == 0) ? 1.5f : 1.0f;
+        auto a = (float)i / (float)(numTicks - 1);
+        float x1 = minSliderPos + a * (maxSliderPos - minSliderPos);
+        float y1 = trackY - (length * 0.5);
+        float y2 = trackY + (length * 0.5);
         
-        auto colour = juce::Colours::white.withAlpha(0.9f);
-        if (numTicks != 2)
-        {
-            colour = juce::Colours::white.withAlpha(i % 5 == 0 ? 0.9f : 0.6f);
-        }
-        g.setColour(colour);
-        g.drawLine(x1, y1, x2, y2, thickness);
+        g.setColour(Colours::white.withAlpha(0.8f));
+        g.drawLine(x1, y1, x1, y2, thickness);
+        
     }
-    g.fillRect((float)x, trackY, (float)width, trackHeight);
-
 
     g.setColour(juce::Colours::black.withAlpha(0.25f));
     g.fillRoundedRectangle(thumbX, thumbY, thumbW, thumbH, thumbCorner);
 
-    
     g.setGradientFill(ColourGradient(
         Colours::white.withAlpha(0.4f),
         thumbX, thumbY,
@@ -235,7 +215,6 @@ void MyLookAndFeel::drawLinearSlider(juce::Graphics &g, int x, int y, int width,
         false
     ));
     g.fillRoundedRectangle(thumbX, thumbY, thumbW, thumbH, thumbCorner);
-    
     
     juce::ColourGradient thumbGrad(
                                    juce::Colour::fromRGB(32, 34, 35),
@@ -250,10 +229,8 @@ void MyLookAndFeel::drawLinearSlider(juce::Graphics &g, int x, int y, int width,
     g.setGradientFill(thumbGrad);
     g.fillRoundedRectangle(thumbX, thumbY, thumbW, thumbH, thumbCorner);
 
-    
     g.setColour(juce::Colours::black.withAlpha(0.45f));
     g.fillRoundedRectangle(thumbX, thumbY, thumbW, thumbH, thumbCorner);
-    
     
     auto pointerW = thumbW * 0.075f;
     auto pointerH = thumbH;
@@ -280,16 +257,15 @@ void MyLookAndFeel::drawButtonBackground(Graphics& g, Button& b, const Colour& b
                           bool shouldDrawButtonAsHighlighted,
                           bool shouldDrawButtonAsDown)
 {
-    int width = b.getWidth();
     int height = b.getHeight();
     float cornerSize = 7.0f;
     float thickness = 2.0f;
     auto buttonArea = b.getLocalBounds().toFloat().reduced(thickness / 2.0f);
+    
     if (shouldDrawButtonAsDown)
     {
         buttonArea = buttonArea.translated(0.0f, 1.5f);
     }
-    
     
     g.setGradientFill(ColourGradient(
                                      Colour::fromRGB(60, 60, 60),
@@ -299,7 +275,6 @@ void MyLookAndFeel::drawButtonBackground(Graphics& g, Button& b, const Colour& b
                                      true
                                      ));
     g.fillRoundedRectangle(buttonArea, cornerSize);
-    
     
     g.setGradientFill(ColourGradient(
         Colours::white.withAlpha(0.6f),
@@ -312,12 +287,6 @@ void MyLookAndFeel::drawButtonBackground(Graphics& g, Button& b, const Colour& b
 }
 
 
-//void MyLookAndFeel::drawButtonText (Graphics&, TextButton&, bool highlighted, bool down)
-//{
-//
-//}
-//
-//
 void MyLookAndFeel::drawLabel (Graphics& g, Label& l)
 {
     if (!l.isBeingEdited())
@@ -326,7 +295,6 @@ void MyLookAndFeel::drawLabel (Graphics& g, Label& l)
         const Rectangle<float> area = l.getLocalBounds().toFloat();
         float cornerSize = 7.0f;
         float thickness = 2.0f;
-        
         
         g.setGradientFill(ColourGradient(
                                          Colour::fromRGB(80, 80, 80),
@@ -337,7 +305,6 @@ void MyLookAndFeel::drawLabel (Graphics& g, Label& l)
                                          ));
         g.fillRoundedRectangle(area, cornerSize);
         
-        
         g.setGradientFill(ColourGradient(
             Colours::white.withAlpha(0.6f),
             0, 0,
@@ -347,10 +314,8 @@ void MyLookAndFeel::drawLabel (Graphics& g, Label& l)
         ));
         g.drawRoundedRectangle(area, cornerSize, thickness);
         
-        
         g.setColour (l.findColour (juce::Label::textColourId).withAlpha (alpha));
         g.setFont (getLabelFont (l));
-        
         
         auto textArea = getLabelBorderSize (l).subtractedFrom (l.getLocalBounds());
                 
@@ -365,4 +330,13 @@ void MyLookAndFeel::setNumTicks(int newValue)
 {
     numTicks = newValue;
 }
+
+
+
+
+
+
+
+
+
 

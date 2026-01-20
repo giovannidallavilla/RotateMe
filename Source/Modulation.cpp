@@ -1,8 +1,9 @@
 #include "Modulation.h"
+#include "DSPValues.h"
+using namespace DSPValues;
 
 
-
-// LowFrequencyOscillator implementation
+// LowFrequencyOscillator Class implementation
 LowFrequencyOscillator::LowFrequencyOscillator(float defaultFrequency, float defaultPhase)
 {
     frequency.setCurrentAndTargetValue(defaultFrequency);
@@ -11,31 +12,27 @@ LowFrequencyOscillator::LowFrequencyOscillator(float defaultFrequency, float def
 }
 
 
-LowFrequencyOscillator::~LowFrequencyOscillator()
-{
-    
-}
+LowFrequencyOscillator::~LowFrequencyOscillator() {}
 
 
 void LowFrequencyOscillator::prepareToPlay(float newSampleRate)
 {
     sampleRate = newSampleRate;
     samplePeriod = 1.0 / sampleRate;
-    frequency.reset(sampleRate, 1.5);
+    frequency.reset(sampleRate, unBrakeRamp);
 }
 
 
 void LowFrequencyOscillator::brake()
 {
-    // Value control to be implemented
-    frequency.reset(sampleRate, 2.0);
+    frequency.reset(sampleRate, brakeRamp);
     frequency.setTargetValue(0.1);
 }
 
 
 void LowFrequencyOscillator::unBrake()
 {
-    frequency.reset(sampleRate, 1.4);
+    frequency.reset(sampleRate, unBrakeRamp);
     frequency.setTargetValue(currentFrequency);
 }
 
@@ -47,7 +44,7 @@ void LowFrequencyOscillator::setChorus()
     
     if (frequency.getTargetValue() >= 0.8f)
     {
-        frequency.reset(sampleRate, 2.0);
+        frequency.reset(sampleRate, chorusRamp);
     }
     frequency.setTargetValue(0.8);
     saveCurrentFrequency();
@@ -60,7 +57,7 @@ void LowFrequencyOscillator::setTremolo(float newValue)
     {
         auto start = frequency.getCurrentValue();
         frequency.setTargetValue(start);
-        frequency.reset(sampleRate, 1.4);
+        frequency.reset(sampleRate, tremoloRamp);
         frequency.setTargetValue(newValue);
         saveCurrentFrequency();
     }
@@ -75,14 +72,13 @@ void LowFrequencyOscillator::saveCurrentFrequency()
 
 void LowFrequencyOscillator::recoverLastFrequency()
 {
-     frequency.reset(sampleRate, 1.4);
+    frequency.reset(sampleRate, tremoloRamp);
     frequency.setTargetValue(currentFrequency);
 }
 
 
 void LowFrequencyOscillator::generateBlock(AudioBuffer<float> &buffer, const int maxNumSamples)
 {
-    const int numChannels = buffer.getNumChannels();
     auto data = buffer.getArrayOfWritePointers();
     
     for (int s = 0; s < maxNumSamples; s++)
@@ -102,8 +98,6 @@ float LowFrequencyOscillator::generateSampleLeft(float freq)
     auto sample = 0.0;
     
     sample = sin(phaseStateLeft * MathConstants<float>::twoPi);
-    
-    
     phaseStateLeft += (freq * samplePeriod);
     phaseStateLeft -= static_cast<int>(phaseStateLeft);
     
@@ -123,8 +117,13 @@ float LowFrequencyOscillator::generateSampleRight(float freq)
 }
 
 
+float LowFrequencyOscillator::getCurrentFrequency()
+{
+    return currentFrequency;
+}
 
-// ParameterModulation implementation
+
+// ParameterModulation Class implementation
 ParameterModulation::ParameterModulation(const float defaultParameter, const float defaultAmount)
 {
     parameter.setCurrentAndTargetValue(defaultParameter);
@@ -132,16 +131,13 @@ ParameterModulation::ParameterModulation(const float defaultParameter, const flo
 }
 
 
-ParameterModulation::~ParameterModulation()
-{
-    
-}
+ParameterModulation::~ParameterModulation() {}
 
 
 void ParameterModulation::prepareToPlay(float sampleRate)
 {
-    parameter.reset(sampleRate, 0.02);
-    amount.reset(sampleRate, 0.02);
+    parameter.reset(sampleRate, defaultRamp);
+    amount.reset(sampleRate, defaultRamp);
 }
 
 

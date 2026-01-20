@@ -1,24 +1,22 @@
 #include "Saturation.h"
+#include "DSPValues.h"
+using namespace DSPValues;
 
 
-
-
+// Saturation Class implementation
 Saturation::Saturation(const float defaultDrive)
 {
     drive.setCurrentAndTargetValue(defaultDrive);
 }
 
 
-Saturation::~Saturation()
-{
-    
-}
+Saturation::~Saturation() {}
 
 
 void Saturation::prepareToPlay(int numChannels, int numSamples, double sampleRate)
 {
     saturationBuffer.setSize(numChannels, numSamples);
-    drive.reset(sampleRate, 0.02);
+    drive.reset(sampleRate, defaultRamp);
 }
 
 
@@ -71,6 +69,7 @@ void Saturation::setDrive(float newValue)
     newValue = jlimit(0.1f, 12.0f, newValue);
     drive.setTargetValue(newValue);
 }
+
 
 void Saturation::setSatType(int newValue)
 {

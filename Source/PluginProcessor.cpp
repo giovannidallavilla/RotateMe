@@ -1,28 +1,26 @@
 #include "PluginProcessor.h"
 #include "PluginEditor.h"
 #include "PluginParameters.h"
+#include "DSPValues.h"
+using namespace DSPValues;
 
 
-
+// RotateMeAudioProcessor Class implementation
 RotateMeAudioProcessor::RotateMeAudioProcessor()
 : parameters(*this, nullptr, "RTY", Parameters::createParameterLayout()),
     drywetter(Parameters::defaultDryWet),
     rotary(),
     saturator(Parameters::defaultSatAmount),
-    pitchLfo(0.8f, 0.0f),
-    ampLfo(0.8f, 0.0f),
+    pitchLfo(defaultLfoFrequency, 0.0f),
+    ampLfo(defaultLfoFrequency, 0.0f),
     timeModulation(Parameters::defaultPitchTime, 1.0),
     ampModulation(Parameters::defaultAmpValue, 1.0)
-
 {
     Parameters::addGlobalListener(parameters, this);
 }
 
 
-RotateMeAudioProcessor::~RotateMeAudioProcessor()
-{
-    
-}
+RotateMeAudioProcessor::~RotateMeAudioProcessor() {}
 
 
 void RotateMeAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
@@ -52,6 +50,7 @@ void RotateMeAudioProcessor::releaseResources()
     gainModulation.setSize(0, 0);
 }
 
+
 void RotateMeAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::MidiBuffer& midiMessages)
 {
     juce::ScopedNoDenormals noDenormals;
@@ -66,10 +65,6 @@ void RotateMeAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juc
     drywetter.copyDrySignal(buffer);
     saturator.processBlock(buffer);
     rotary.processBlock(buffer, pitchModulation, gainModulation);
-//    for (int ch = 0; ch < buffer.getNumChannels(); ch++)
-//    {
-//        FloatVectorOperations::copy(buffer.getArrayOfWritePointers()[ch], pitchModulation.getArrayOfReadPointers()[ch], numSamples);
-//    }
     drywetter.mixSignals(buffer);
 }
 
@@ -116,11 +111,13 @@ void RotateMeAudioProcessor::parameterChanged(const String &parameterID, float n
         {
             pitchLfo.setChorus();
             ampLfo.setChorus();
+            rotationSpeed.store(48.0f);
         }
         else
         {
             pitchLfo.setTremolo(6.0);
             ampLfo.setTremolo(5.0);
+            rotationSpeed.store(390.0f);
         }
     }
     
@@ -137,12 +134,15 @@ void RotateMeAudioProcessor::parameterChanged(const String &parameterID, float n
             ampLfo.saveCurrentFrequency();
             pitchLfo.brake();
             ampLfo.brake();
+            rotationSpeed.store(0.0f);
             isBraked = true;
         }
         else
         {
             pitchLfo.recoverLastFrequency();
             ampLfo.recoverLastFrequency();
+            auto freq = (ampLfo.getCurrentFrequency() == 5.0f) ? 390.0f : 48.0f;
+            rotationSpeed.store(freq);
             isBraked = false;
         }
     }
@@ -152,7 +152,6 @@ void RotateMeAudioProcessor::parameterChanged(const String &parameterID, float n
         int value = newValue == 1 ? 0 : 1;
         saturator.setSatType(value);
     }
-    
 }
 
 
@@ -162,11 +161,11 @@ void RotateMeAudioProcessor::loadPreset(int index)
     currentPresetIndex = index;
 }
 
+
 String RotateMeAudioProcessor::getCurrentPresetName() const
 {
     return presets[currentPresetIndex];
 }
-
 
 
 juce::AudioProcessor* JUCE_CALLTYPE createPluginFilter()

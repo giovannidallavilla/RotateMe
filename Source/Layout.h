@@ -29,6 +29,7 @@ namespace GUI
     constexpr int cmdKnobW = 120;
     constexpr int cmdKnobH = 120;
     constexpr float cmdKnobCorner = 0.25f;
+    constexpr float cmdKnobThickness = 2.0f;
     constexpr int presetButtonW = 60;
     constexpr int presetButtonH = 60;
     constexpr int presetLabelW = presetPlateW - (2 * presetButtonW) - 80;
@@ -44,4 +45,12 @@ namespace GUI
     constexpr int bottomHoleX = 30;
     constexpr int bottomHoleY = height - holeH - 30;
     
+    constexpr int rotaryVisualizerW = presetLabelW * 0.75;
+    constexpr int rotaryVisualizerH = rotaryVisualizerW;
+    constexpr int rotaryVisualizerX = presetPlateX + 95 + presetButtonW;
+    constexpr int rotaryVisualizerY = padding_top - 20;
+    
+    
+    constexpr float borderWidth = 1.5f;
+    constexpr float knobScale = 0.85f;
 }

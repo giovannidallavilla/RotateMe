@@ -29,6 +29,8 @@ class LowFrequencyOscillator
     
     void recoverLastFrequency();
     
+    float getCurrentFrequency();
+    
     private:
     float sampleRate;
     float samplePeriod = 1.0;
@@ -37,8 +39,6 @@ class LowFrequencyOscillator
     float phaseStateRight = MathConstants<float>::halfPi;
     
     SmoothedValue<float, ValueSmoothingTypes::Multiplicative> frequency;
-    
-    
     
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(LowFrequencyOscillator)
 };
