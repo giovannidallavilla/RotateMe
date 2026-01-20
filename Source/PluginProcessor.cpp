@@ -1,28 +1,37 @@
 #include "PluginProcessor.h"
 #include "PluginEditor.h"
 #include "PluginParameters.h"
+#include "DSPValues.h"
+using namespace DSPValues;
 
 
-
+// RotateMeAudioProcessor Class implementation
 RotateMeAudioProcessor::RotateMeAudioProcessor()
 : parameters(*this, nullptr, "RTY", Parameters::createParameterLayout()),
     drywetter(Parameters::defaultDryWet),
     rotary(),
     saturator(Parameters::defaultSatAmount),
-    pitchLfo(0.8f, 0.0f),
-    ampLfo(0.8f, 0.0f),
+    pitchLfo(defaultLfoFrequency, 0.0f),
+    ampLfo(defaultLfoFrequency, 0.0f),
     timeModulation(Parameters::defaultPitchTime, 1.0),
     ampModulation(Parameters::defaultAmpValue, 1.0)
-
 {
     Parameters::addGlobalListener(parameters, this);
-}
-
-
-RotateMeAudioProcessor::~RotateMeAudioProcessor()
-{
+    factoryPresets = {
+        { "Init", BinaryData::Init_xml, BinaryData::Init_xmlSize },
+//        { "Warm", BinaryData::Warm_xml, BinaryData::Warm_xmlSize },
+//        { "Bright", BinaryData::Bright_xml, BinaryData::Bright_xmlSize },
+//        { "Deep", BinaryData::Deep_xml, BinaryData::Deep_xmlSize }
+    };
     
+    for (const auto& p : factoryPresets)
+    {
+        factoryPresetsNames.add(p.name);
+    }
 }
+
+
+RotateMeAudioProcessor::~RotateMeAudioProcessor() {}
 
 
 void RotateMeAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
@@ -52,6 +61,7 @@ void RotateMeAudioProcessor::releaseResources()
     gainModulation.setSize(0, 0);
 }
 
+
 void RotateMeAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::MidiBuffer& midiMessages)
 {
     juce::ScopedNoDenormals noDenormals;
@@ -66,23 +76,19 @@ void RotateMeAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juc
     drywetter.copyDrySignal(buffer);
     saturator.processBlock(buffer);
     rotary.processBlock(buffer, pitchModulation, gainModulation);
-//    for (int ch = 0; ch < buffer.getNumChannels(); ch++)
-//    {
-//        FloatVectorOperations::copy(buffer.getArrayOfWritePointers()[ch], pitchModulation.getArrayOfReadPointers()[ch], numSamples);
-//    }
     drywetter.mixSignals(buffer);
 }
 
 
 bool RotateMeAudioProcessor::hasEditor() const
 {
-    return false;
+    return true;
 }
 
 
 juce::AudioProcessorEditor* RotateMeAudioProcessor::createEditor()
 {
-    return new RotateMeAudioProcessorEditor (*this);
+    return new RotateMeAudioProcessorEditor (*this, parameters);
 }
 
 
@@ -91,7 +97,10 @@ void RotateMeAudioProcessor::setStateInformation(const void *data, int sizeInByt
     std::unique_ptr<XmlElement> xmlState(getXmlFromBinary(data, sizeInBytes));
     if (xmlState.get() != nullptr)
         if (xmlState->hasTagName(parameters.state.getType()))
+        {
             parameters.replaceState(ValueTree::fromXml(*xmlState));
+            updateAllParameters();
+        }
 }
 
 
@@ -116,11 +125,13 @@ void RotateMeAudioProcessor::parameterChanged(const String &parameterID, float n
         {
             pitchLfo.setChorus();
             ampLfo.setChorus();
+            rotationSpeed.store(48.0f);
         }
         else
         {
             pitchLfo.setTremolo(6.0);
             ampLfo.setTremolo(5.0);
+            rotationSpeed.store(390.0f);
         }
     }
     
@@ -137,24 +148,71 @@ void RotateMeAudioProcessor::parameterChanged(const String &parameterID, float n
             ampLfo.saveCurrentFrequency();
             pitchLfo.brake();
             ampLfo.brake();
+            rotationSpeed.store(0.0f);
             isBraked = true;
         }
         else
         {
             pitchLfo.recoverLastFrequency();
             ampLfo.recoverLastFrequency();
+            auto freq = (ampLfo.getCurrentFrequency() == 5.0f) ? 390.0f : 48.0f;
+            rotationSpeed.store(freq);
             isBraked = false;
         }
     }
     
-    if (parameterID == Parameters::nameFrequency)
+    if (parameterID == Parameters::nameSatType)
     {
-//        pitchLfo.setFrequency(newValue);
-//        ampLfo.setFrequency(newValue);
+        int value = newValue == 1 ? 0 : 1;
+        saturator.setSatType(value);
     }
-    
 }
 
+
+void RotateMeAudioProcessor::updateAllParameters()
+{
+    std::vector<String> params = { "BK", "DW", "MS", "SA", "ST" };
+    for (auto& s : params)
+    {
+        auto p = parameters.getParameter(s);
+        p->sendValueChangedMessageToListeners(p->getValue());
+    }
+}
+
+
+void RotateMeAudioProcessor::loadFactoryPreset(int index)
+{
+    if (index < presetCount)
+    {
+        factoryPresets.resize(presetCount);
+        factoryPresetsNames.removeRange(presetCount, factoryPresetsNames.size() - presetCount);
+    }
+    if (isPositiveAndBelow(index, (int)factoryPresets.size()))
+    {
+        const auto preset = factoryPresets[index];
+        if (preset.data != nullptr && preset.size > 0)
+        {
+            setStateInformation(preset.data, preset.size);
+            currentPresetIndex = index;
+        }
+    }
+}
+
+
+void RotateMeAudioProcessor::addPreset(const juce::String name, const void *data, int sizeInBytes)
+{
+    FactoryPresets preset = { name, static_cast<const char*>(data), sizeInBytes };
+    factoryPresets.push_back(preset);
+    factoryPresetsNames.add(name);
+    int index = (int)factoryPresets.size() - 1;
+    loadFactoryPreset(index);
+}
+
+
+String RotateMeAudioProcessor::getCurrentPresetName() const
+{
+    return factoryPresetsNames[currentPresetIndex];
+}
 
 
 juce::AudioProcessor* JUCE_CALLTYPE createPluginFilter()

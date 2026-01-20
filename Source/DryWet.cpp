@@ -1,21 +1,23 @@
 #include "DryWet.h"
+#include "DSPValues.h"
+using namespace DSPValues;
 
 
-
+// DryWet Class implementation
 DryWet::DryWet(float defaultDryWetRadio)
 {
-    dryWetRatio = defaultDryWetRadio;
+    dryGain.setCurrentAndTargetValue(sqrt(1 - defaultDryWetRadio));
+    wetGain.setCurrentAndTargetValue(sqrt(defaultDryWetRadio));
 }
 
 
-DryWet::~DryWet()
-{
-    
-}
+DryWet::~DryWet() {}
 
 
 void DryWet::prepareToPlay(double sampleRate, int maxNumSamples)
 {
+    dryGain.reset(sampleRate, defaultRamp);
+    wetGain.reset(sampleRate, defaultRamp);
     drySignal.setSize(2, maxNumSamples);
     drySignal.clear();
     
@@ -46,12 +48,10 @@ void DryWet::mixSignals(AudioBuffer<float>& destinationBuffer)
     const auto numSamples = destinationBuffer.getNumSamples();
     const auto numChannels = destinationBuffer.getNumChannels();
     
-    destinationBuffer.applyGain(wetGain);
-    
     for (int ch = 0; ch < numChannels; ch++)
     {
-        drySignal.applyGain(ch, 0, numSamples, dryGain);
-        destinationBuffer.addFrom(ch, 0, drySignal, ch, 0, numSamples);
+        destinationBuffer.applyGainRamp(ch, 0, numSamples, wetGain.getCurrentValue(), wetGain.getNextValue());
+        destinationBuffer.addFromWithRamp(ch, 0, drySignal.getReadPointer(ch), numSamples, dryGain.getCurrentValue(), dryGain.getNextValue());
     }
 }
 
@@ -65,6 +65,6 @@ void DryWet::setDWRatio(float newValues)
 
 void DryWet::updateState()
 {
-    dryGain = sqrt(1 - dryWetRatio);
-    wetGain = sqrt(dryWetRatio);
+    dryGain.setTargetValue(sqrt(1 - dryWetRatio));
+    wetGain.setTargetValue(sqrt(dryWetRatio));
 }

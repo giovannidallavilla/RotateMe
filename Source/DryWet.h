@@ -2,12 +2,10 @@
 
 #include <JuceHeader.h>
 
-#define DEFAULT_DW_RATIO 0.5f
-
 class DryWet
 {
     public:
-    DryWet(float defaultDryWetRatio = DEFAULT_DW_RATIO);
+    DryWet(float defaultDryWetRatio = 0.5f);
     ~DryWet();
     
     void prepareToPlay(double SampleRate, int maxNumSamples);
@@ -22,8 +20,8 @@ class DryWet
     
     private:
     float dryWetRatio;
-    float dryGain = 0.0f;
-    float wetGain = 0.0f;
+    SmoothedValue<float, ValueSmoothingTypes::Linear> dryGain;
+    SmoothedValue<float, ValueSmoothingTypes::Linear> wetGain;
     
     void updateState();
     

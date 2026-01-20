@@ -16,9 +16,17 @@ class Saturation
     
     void setDrive(float newValue);
     
+    void setSatType(int newValue);
+    
     
     private:
+    int saturationType = 0;
+    
     SmoothedValue<float, ValueSmoothingTypes::Multiplicative> drive;
     
     AudioBuffer<float> saturationBuffer;
+    
+    inline float tube(float sample, float driveValue);
+    
+    inline float softHard(float sample, float threshold, float driveValue);
 };

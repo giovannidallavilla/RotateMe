@@ -4,24 +4,30 @@
               jucerFormatVersion="1" version="1.0.0" companyName="LIM" companyWebsite="www.lim.di.unimi.it"
               pluginName="RotateMe" pluginDesc="Easy to use Leslie 740 emulation."
               pluginManufacturer="LIM" pluginManufacturerCode="LIM!" pluginCode="RoMe"
-              pluginChannelConfigs="{1,1}, {2,2}">
+              pluginChannelConfigs="{1,1}, {2,2}" defines="JUCE_MODAL_LOOPS_PERMITTED = 1">
   <MAINGROUP id="RSp2xU" name="RotateMe">
     <GROUP id="{8EED1B3B-227B-906B-EEF2-06F1C9D26800}" name="Source">
+      <GROUP id="{295CF788-5BDE-BEBC-28CA-AA8307ACCF83}" name="FactoryPresets">
+        <FILE id="ra5KVZ" name="Init.xml" compile="0" resource="1" file="../../../Desktop/Init.xml"/>
+      </GROUP>
       <GROUP id="{3692BB63-DEAD-1487-E0B0-79A5529A5464}" name="DSP">
+        <FILE id="OZeuWz" name="DSPValues.h" compile="0" resource="0" file="Source/DSPValues.h"/>
         <FILE id="DVSZf5" name="DryWet.cpp" compile="1" resource="0" file="Source/DryWet.cpp"/>
         <FILE id="mN8nN5" name="DryWet.h" compile="0" resource="0" file="Source/DryWet.h"/>
         <FILE id="CXdq3j" name="Modulation.cpp" compile="1" resource="0" file="Source/Modulation.cpp"/>
         <FILE id="xt1gCd" name="Saturation.cpp" compile="1" resource="0" file="Source/Saturation.cpp"/>
         <FILE id="GML0RO" name="PluginParameters.h" compile="0" resource="0"
               file="Source/PluginParameters.h"/>
-        <FILE id="PaTMzq" name="PluginParameters.cpp" compile="1" resource="0"
-              file="Source/PluginParameters.cpp"/>
         <FILE id="VOGfdU" name="Saturation.h" compile="0" resource="0" file="Source/Saturation.h"/>
         <FILE id="wtHZCo" name="Modulation.h" compile="0" resource="0" file="Source/Modulation.h"/>
         <FILE id="lNg8Ri" name="Rotary.cpp" compile="1" resource="0" file="Source/Rotary.cpp"/>
         <FILE id="IXITEB" name="Rotary.h" compile="0" resource="0" file="Source/Rotary.h"/>
       </GROUP>
       <GROUP id="{8C6C0D17-43F3-2AE4-2517-111351499809}" name="GUI">
+        <FILE id="Nrxu7O" name="Jauza.otf" compile="0" resource="1" file="../../../Library/Fonts/Jauza.otf"/>
+        <FILE id="otKXvT" name="Layout.h" compile="0" resource="0" file="Source/Layout.h"/>
+        <FILE id="LG5n1x" name="MyTheme.cpp" compile="1" resource="0" file="Source/MyTheme.cpp"/>
+        <FILE id="rvk1GZ" name="MyTheme.h" compile="0" resource="0" file="Source/MyTheme.h"/>
         <FILE id="wAMznC" name="PluginEditor.cpp" compile="1" resource="0"
               file="Source/PluginEditor.cpp"/>
         <FILE id="DKr2WU" name="PluginEditor.h" compile="0" resource="0" file="Source/PluginEditor.h"/>

@@ -14,7 +14,6 @@ class PitchDelay
     
     void processBlock(AudioBuffer<float>& buffer, AudioBuffer<float>& modulation);
     
-    
     private:
     double sampleRate;
     int memorySize = 0;
@@ -26,10 +25,8 @@ class PitchDelay
     
     SmoothedValue<float> smoothedDelay[2];
     
-    
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(PitchDelay)
 };
-
 
 
 class Amplifier
@@ -43,12 +40,9 @@ class Amplifier
     void releaseResources();
     
     void processBlock(AudioBuffer<float>& buffer, AudioBuffer<float>& modulation);
-    
-    
-    private:
-    // SmoothedValue<float, ValueSmoothingTypes::Linear> gain;
-};
 
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(Amplifier)
+};
 
 
 class Rotary
