@@ -66,8 +66,14 @@ void Rotary::releaseResources()
 
 void Rotary::processBlock(AudioBuffer<float> &buffer, AudioBuffer<float> &timeModulation, AudioBuffer<float> &ampModulation)
 {
-    delay.processBlock(buffer, timeModulation);
+    delay.processBlock(buffer, timeModulation, pitchDepth);
     amp.processBlock(buffer, ampModulation);
+}
+
+
+void Rotary::setPitchDepth(float newValue)
+{
+    pitchDepth = newValue;
 }
 
 
@@ -100,7 +106,7 @@ void PitchDelay::releaseResources()
 }
 
 
-void PitchDelay::processBlock(AudioBuffer<float> &buffer, AudioBuffer<float> &modulation)
+void PitchDelay::processBlock(AudioBuffer<float> &buffer, AudioBuffer<float> &modulation, float pitchDepth)
 {
     const int numChannels = buffer.getNumChannels();
         const int numSamples  = buffer.getNumSamples();
@@ -114,7 +120,7 @@ void PitchDelay::processBlock(AudioBuffer<float> &buffer, AudioBuffer<float> &mo
             for (int ch = 0; ch < numChannels; ++ch)
             {
                 float lfo = modulationData[ch][s];
-                float delayMs = baseDelayMs + lfo * delayDepth;
+                float delayMs = baseDelayMs + lfo * pitchDepth;
                 delayMs = jlimit(3.0f, 9.0f, delayMs);
                 float delaySamples = delayMs * 0.001f * sampleRate;
 

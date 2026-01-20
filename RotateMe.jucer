@@ -8,6 +8,9 @@
   <MAINGROUP id="RSp2xU" name="RotateMe">
     <GROUP id="{8EED1B3B-227B-906B-EEF2-06F1C9D26800}" name="Source">
       <GROUP id="{295CF788-5BDE-BEBC-28CA-AA8307ACCF83}" name="FactoryPresets">
+        <FILE id="IacJon" name="Bright.xml" compile="0" resource="1" file="../../../Desktop/Bright.xml"/>
+        <FILE id="VTI7ZN" name="Deep.xml" compile="0" resource="1" file="../../../Desktop/Deep.xml"/>
+        <FILE id="PB13IJ" name="Warm.xml" compile="0" resource="1" file="../../../Desktop/Warm.xml"/>
         <FILE id="ra5KVZ" name="Init.xml" compile="0" resource="1" file="../../../Desktop/Init.xml"/>
       </GROUP>
       <GROUP id="{3692BB63-DEAD-1487-E0B0-79A5529A5464}" name="DSP">
