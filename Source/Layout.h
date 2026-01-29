@@ -1,5 +1,5 @@
 #pragma once
-
+#include <JuceHeader.h>
 
 namespace GUI
 {
@@ -53,4 +53,51 @@ namespace GUI
     
     constexpr float borderWidth = 1.5f;
     constexpr float knobScale = 0.85f;
+    
+    
 }
+
+using namespace GUI;
+
+
+class PlateComponent : public Component
+{
+    public:
+    PlateComponent(Image& texture);
+    ~PlateComponent();
+    
+    void paint(Graphics& g) override;
+    
+    private:
+    Image& texture;
+    
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(PlateComponent)
+};
+
+
+class HoleComponent : public Component
+{
+    public:
+    HoleComponent();
+    ~HoleComponent();
+    
+    void paint(Graphics& g) override;
+    
+    private:
+    
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(HoleComponent)
+};
+
+
+class BrandComponent : public Component
+{
+    public:
+    BrandComponent();
+    ~BrandComponent();
+    
+    void paint(Graphics& g) override;
+    
+    private:
+    
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(BrandComponent)
+};

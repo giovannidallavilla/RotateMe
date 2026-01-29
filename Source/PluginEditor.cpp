@@ -9,21 +9,27 @@ using namespace GUI;
 // RotateMeAudioProcessorEditor Class implementation
 //==============================================================================
 RotateMeAudioProcessorEditor::RotateMeAudioProcessorEditor (RotateMeAudioProcessor& p, AudioProcessorValueTreeState& valueTreeState)
-    : AudioProcessorEditor (&p), audioProcessor (p), valueTreeState(valueTreeState), rotaryVisualizer(p)
+    : AudioProcessorEditor (&p), audioProcessor (p), valueTreeState(valueTreeState), commandPlate(commandPlateTexture), presetPlate(presetPlateTexture), rotaryVisualizer(p)
 {
+    woodTexture = generateWoodTexture();
+    commandPlateTexture = generatePlateTexture(cmdPlateW, cmdPlateH);
+    presetPlateTexture = generatePlateTexture(presetPlateW, presetPlateH);
+    
+    addAndMakeVisible(commandPlate);
+    addAndMakeVisible(presetPlate);
+    addAndMakeVisible(upperHole);
+    addAndMakeVisible(bottomHole);
+    addAndMakeVisible(credits);
+    setupPresetBrowser();
     updatePresetBrowser();
     
     setSize (width, height);
     
-    setupSlider(satSlider, cmdPlateX, cmdPlateY, cmdKnobW, cmdKnobH, cmdKnobCorner + 0.5f);
-    setupSlider(satTypeSlider, cmdPlateX + cmdPlateW - 280, cmdPlateY, cmdKnobW, cmdKnobH, cmdKnobCorner);
-    setupSlider(speedSlider, cmdPlateX, cmdPlateY + 180, cmdKnobW, cmdKnobH, cmdKnobCorner);
-    setupSlider(brakeSlider, cmdPlateX + cmdPlateW - 280, cmdPlateY + 180, cmdKnobW, cmdKnobH, cmdKnobCorner);
-    
-    dryWetSlider.setSliderStyle(Slider::SliderStyle::LinearHorizontal);
-    dryWetSlider.setTextBoxStyle(Slider::TextBoxBelow, false, 80, 20);
-    dryWetSlider.setBounds(cmdPlateX - 15, cmdPlateY + 350, 350, 50);
-    addAndMakeVisible(dryWetSlider);
+    setupSliderRotary(satSlider, satLabel, cmdPlateX, cmdPlateY, cmdKnobW, cmdKnobH, cmdKnobCorner + 0.5f, "Drive");
+    setupSliderRotary(satTypeSlider, satTypeLabel, cmdPlateX + cmdPlateW - 280, cmdPlateY, cmdKnobW, cmdKnobH, cmdKnobCorner, "Saturation Type");
+    setupSliderRotary(speedSlider, speedLabel, cmdPlateX, cmdPlateY + 180, cmdKnobW, cmdKnobH, cmdKnobCorner, "Speed");
+    setupSliderRotary(brakeSlider, brakeLabel, cmdPlateX + cmdPlateW - 280, cmdPlateY + 180, cmdKnobW, cmdKnobH, cmdKnobCorner, "Brake");
+    setupSliderLinear(dryWetSlider, dwLabel, cmdPlateX - 15, cmdPlateY + 350, 350, 50, "Dry/Wet");
     
     dryWetAttachment.reset(new SliderAttachment(valueTreeState, Parameters::nameDryWet , dryWetSlider));
     satAttachment.reset(new SliderAttachment(valueTreeState, Parameters::nameSatAmount , satSlider));
@@ -31,40 +37,9 @@ RotateMeAudioProcessorEditor::RotateMeAudioProcessorEditor (RotateMeAudioProcess
     speedAttachment.reset(new SliderAttachment(valueTreeState, Parameters::nameModSpeed , speedSlider));
     brakeAttachment.reset(new SliderAttachment(valueTreeState, Parameters::nameBrake , brakeSlider));
     
-    addAndMakeVisible(presetBrowser);
-    addAndMakeVisible(nextPreset);
-    addAndMakeVisible(previousPreset);
-    addAndMakeVisible(load);
-    addAndMakeVisible(save);
-    
-    presetBrowser.setJustificationType(Justification::centred);
-    presetBrowser.setText(audioProcessor.getCurrentPresetName(), dontSendNotification);
-    
-    nextPreset.onClick = [this]
-    {
-        audioProcessor.loadFactoryPreset(audioProcessor.currentPresetIndex - 1);
-        currentPreset = audioProcessor.currentPresetIndex;
-        updatePresetBrowser();
-    };
-    
-    previousPreset.onClick = [this]
-    {
-        audioProcessor.loadFactoryPreset(audioProcessor.currentPresetIndex + 1);
-        currentPreset = audioProcessor.currentPresetIndex;
-        updatePresetBrowser();
-    };
-    
-    load.onClick = [this] { loadPreset(); };
-    save.onClick = [this] { savePreset(); };
-    
     addAndMakeVisible(rotaryVisualizer);
     
     this->setLookAndFeel(&myTheme);
-    
-    woodTexture = generateWoodTexture();
-    commandPlateTexture = generatePlateTexture(cmdPlateW, cmdPlateH);
-    presetPlateTexture = generatePlateTexture(presetPlateW, presetPlateH);
-    
 }
 
 
@@ -72,11 +47,11 @@ RotateMeAudioProcessorEditor::~RotateMeAudioProcessorEditor()
 {
     dryWetAttachment.reset();
     satAttachment.reset();
+    satTypeAttachment.reset();
     speedAttachment.reset();
     brakeAttachment.reset();
     
     this->setLookAndFeel(nullptr);
-    
 }
 
 
@@ -84,61 +59,12 @@ RotateMeAudioProcessorEditor::~RotateMeAudioProcessorEditor()
 void RotateMeAudioProcessorEditor::paint (juce::Graphics& g)
 {
     g.drawImage(woodTexture, getLocalBounds().toFloat());
-    
-    Rectangle<float> commandPlateBounds(-78.0f + padding_left, padding_top -90.0f, (float)cmdPlateW, (float)cmdPlateH);
-    Rectangle<float> presetPlateBounds(presetPlateX, presetPlateY, (float)presetPlateW, (float)presetPlateH);
-    g.drawImage(commandPlateTexture, commandPlateBounds);
-    g.setColour(juce::Colour::fromRGB(69, 50, 32));
-    g.drawRoundedRectangle(commandPlateBounds, plateCornerRadius, plateBorderThickness);
-    g.drawImage(presetPlateTexture, presetPlateBounds);
-    g.setColour(juce::Colour::fromRGB(69, 50, 32));
-    g.drawRoundedRectangle(presetPlateBounds, plateCornerRadius, plateBorderThickness);
-
-    auto typeface = juce::Typeface::createSystemTypefaceFor(
-        BinaryData::Jauza_otf,
-        BinaryData::Jauza_otfSize
-    );
-    juce::FontOptions opts = FontOptions(typeface).withHeight(48.f).withStyle("plain");
-    juce::Font jauzaFont(opts);
-    
-    g.setColour(juce::Colours::lightgrey);
-    g.setFont(jauzaFont);
-    g.drawText("RotateMe", cmdPlateX + cmdPlateW, padding_top - 340, 600, 600, juce::Justification::centred);
-    g.setFont(juce::FontOptions(15.0f));
-    g.drawText("Speed", cmdPlateX + 20, cmdPlateY + 145, textBoxW, textBoxH, juce::Justification::centred);
-    g.drawText("Saturation Type", cmdPlateX - 260 + cmdPlateW, cmdPlateY - 35, textBoxW + 26, textBoxH, juce::Justification::centred);
-    g.drawText("Drive", cmdPlateX + 20, cmdPlateY - 35, textBoxW, textBoxH, juce::Justification::centred);
-    g.drawText("Brake", cmdPlateX - 260 + cmdPlateW, cmdPlateY + 145, textBoxW, textBoxH, juce::Justification::centred);
-    g.drawText("Dry/Wet", cmdPlateX + 120, cmdPlateY + 300, textBoxW, textBoxH, juce::Justification::centred);
-    g.setColour(Colour::fromRGB(67, 67, 67));
-    g.drawText("Developed by Giovanni Dalla Villa", presetPlateX + presetButtonW + 50, presetPlateY + presetLabelH + 20, textBoxW + 300, textBoxH + 50, Justification::centred);
-    g.drawText("at Laboratorio di Informatica Musicale", presetPlateX + presetButtonW + 50, presetPlateY + presetLabelH + 40, textBoxW + 300, textBoxH + 50, Justification::centred);
-    
-    Rectangle<float> upperHole(upperHoleX, upperHoleY, holeW, holeH);
-    Rectangle<float> bottomHole(bottomHoleX, bottomHoleY, holeW, holeH);
-    
-    float holeCornerSize = 18.0f;
-    ColourGradient backgroundGradient(Colour::fromRGB(35, 36, 37),
-                                      0, 0,
-                                      Colour::fromRGB(35, 36, 37),
-                                      holeW, 0,
-                                      true);
-    backgroundGradient.addColour(0.5f, Colour::fromRGB(54, 55, 56));
-    g.setGradientFill(backgroundGradient);
-    g.fillRoundedRectangle(upperHole, holeCornerSize);
-    g.fillRoundedRectangle(bottomHole, holeCornerSize);
-    g.setColour(juce::Colour::fromRGB(69, 50, 32));
-    g.drawRoundedRectangle(upperHole, plateCornerRadius, plateBorderThickness);
-    g.drawRoundedRectangle(bottomHole, plateCornerRadius, plateBorderThickness);
-    
 }
 
 
 void RotateMeAudioProcessorEditor::resized()
 {
-    woodTexture = Image(Image::RGB, getWidth(), getHeight(), false);
-    
-    generateWoodTexture();
+    woodTexture = generateWoodTexture();
     
     addAndMakeVisible(presetBrowser);
     addAndMakeVisible(nextPreset);
@@ -146,12 +72,18 @@ void RotateMeAudioProcessorEditor::resized()
     addAndMakeVisible(load);
     addAndMakeVisible(save);
     
+    
+    commandPlate.setBounds(-78 + padding_left, padding_top - 90, cmdPlateW, cmdPlateH);
+    presetPlate.setBounds(presetPlateX, presetPlateY, presetPlateW, presetPlateH);
+    upperHole.setBounds(upperHoleX, upperHoleY, holeW, holeH);
+    bottomHole.setBounds(bottomHoleX, bottomHoleY, holeW, holeH);
+    
+    credits.setBounds(getLocalBounds());
     presetBrowser.setBounds(presetPlateX + 40 + presetButtonW, presetPlateY + 20, presetLabelW, presetLabelH);
     previousPreset.setBounds(presetPlateX + 20, presetPlateY + 20, presetButtonW, presetButtonH);
     nextPreset.setBounds(presetPlateX + presetLabelW + 60 + presetButtonW, presetPlateY + 20, presetButtonW, presetButtonH);
     load.setBounds(presetPlateX + 20, presetPlateY + 100, presetButtonW, presetButtonH);
     save.setBounds(presetPlateX + presetLabelW + 60 + presetButtonW, presetPlateY + 100, presetButtonW, presetButtonH);
-    
     rotaryVisualizer.setBounds (rotaryVisualizerX,
                                 rotaryVisualizerY,
                                 rotaryVisualizerW,
@@ -159,14 +91,34 @@ void RotateMeAudioProcessorEditor::resized()
 }
 
 
-void RotateMeAudioProcessorEditor::setupSlider(Slider &slider, int x, int y, int w, int h, float rotationWindow)
+void RotateMeAudioProcessorEditor::setupSliderRotary(Slider &slider, Label &label, int x, int y, int w, int h, float rotationWindow, String name)
 {
+    label.setColour(juce::Label::backgroundColourId, juce::Colours::transparentBlack);
+    label.setColour(juce::Label::textColourId, juce::Colours::white);
+    label.setText(name, dontSendNotification);
+    label.setJustificationType(Justification::centred);
+    label.attachToComponent(&slider, false);
     slider.setSliderStyle(Slider::SliderStyle::RotaryHorizontalVerticalDrag);
     slider.setTextBoxStyle(Slider::TextBoxBelow, false, 80, 20);
-    slider.setRotaryParameters(rotationWindow * -MathConstants<float>::pi, rotationWindow * MathConstants<float>::pi, true);
+    slider.setRotaryParameters((1.5 - rotationWindow) * MathConstants<float>::pi, (1.5 + rotationWindow) * MathConstants<float>::pi, true);
     addAndMakeVisible(&slider);
+    addAndMakeVisible(label);
     slider.setBounds(x, y, w, h);
 }
+
+
+void RotateMeAudioProcessorEditor::setupSliderLinear(Slider &slider, Label &label, int x, int y, int w, int h, String name)
+{
+    label.setText(name, dontSendNotification);
+    label.setJustificationType(Justification::centred);
+    label.attachToComponent(&dryWetSlider, false);
+    slider.setSliderStyle(Slider::SliderStyle::LinearHorizontal);
+    slider.setTextBoxStyle(Slider::TextBoxBelow, false, 80, 20);
+    slider.setBounds(x, y, w, h);
+    addAndMakeVisible(slider);
+    addAndMakeVisible(label);
+}
+
 
 Image RotateMeAudioProcessorEditor::generateWoodTexture()
 {
@@ -267,6 +219,37 @@ Image RotateMeAudioProcessorEditor::generatePlateTexture(int width, int height)
 }
 
 
+void RotateMeAudioProcessorEditor::setupPresetBrowser()
+{
+    presetBrowser.setColour(Label::backgroundColourId, Colour::fromRGB(40, 40, 40));
+    presetBrowser.setJustificationType(Justification::centred);
+    presetBrowser.setText(audioProcessor.getCurrentPresetName(), dontSendNotification);
+    
+    nextPreset.onClick = [this]
+    {
+        audioProcessor.loadFactoryPreset(audioProcessor.currentPresetIndex - 1);
+        currentPreset = audioProcessor.currentPresetIndex;
+        updatePresetBrowser();
+    };
+    
+    previousPreset.onClick = [this]
+    {
+        audioProcessor.loadFactoryPreset(audioProcessor.currentPresetIndex + 1);
+        currentPreset = audioProcessor.currentPresetIndex;
+        updatePresetBrowser();
+    };
+    
+    load.onClick = [this] { loadPreset(); };
+    save.onClick = [this] { savePreset(); };
+    
+    addAndMakeVisible(presetBrowser);
+    addAndMakeVisible(nextPreset);
+    addAndMakeVisible(previousPreset);
+    addAndMakeVisible(load);
+    addAndMakeVisible(save);
+}
+
+
 void RotateMeAudioProcessorEditor::updatePresetBrowser()
 {
     presetBrowser.setText(audioProcessor.getCurrentPresetName(), dontSendNotification);
@@ -319,7 +302,6 @@ void RotateMeAudioProcessorEditor::savePreset()
 // RotaryVisualizer Class implementation
 RotaryVisualizer::RotaryVisualizer(RotateMeAudioProcessor& p) : processor(p)
 {
-    
     startTimerHz(60);
 }
 

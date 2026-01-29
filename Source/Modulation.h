@@ -32,7 +32,7 @@ class LowFrequencyOscillator
     float getCurrentFrequency();
     
     private:
-    float sampleRate;
+    float sampleRate = 1.0;
     float samplePeriod = 1.0;
     float phaseStateLeft = 0.0;
     float currentFrequency = 1.0;

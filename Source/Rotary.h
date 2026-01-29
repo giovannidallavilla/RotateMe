@@ -15,7 +15,7 @@ class PitchDelay
     void processBlock(AudioBuffer<float>& buffer, AudioBuffer<float>& modulation, float pitchDepth);
     
     private:
-    double sampleRate;
+    double sampleRate = 1.0;
     int memorySize = 0;
     int writeIndex = 0;
     
@@ -62,9 +62,9 @@ class Rotary
     void setPitchDepth(float newValue);
     
     private:
-    float sampleRate;
-    float numSamples;
-    float pitchDepth;
+    float sampleRate = 1.0;
+    float numSamples = 1.0;
+    float pitchDepth = 1.0;
     
     PitchDelay delay;
     Amplifier amp;

@@ -39,9 +39,6 @@ void LowFrequencyOscillator::unBrake()
 
 void LowFrequencyOscillator::setChorus()
 {
-    auto start = frequency.getCurrentValue();
-    frequency.setTargetValue(start);
-    
     if (frequency.getTargetValue() >= 0.8f)
     {
         frequency.reset(sampleRate, chorusRamp);
@@ -56,8 +53,6 @@ void LowFrequencyOscillator::setTremolo(float newValue)
 {
     if (frequency.getTargetValue() >= 0.8f)
     {
-        auto start = frequency.getCurrentValue();
-        frequency.setTargetValue(start);
         frequency.reset(sampleRate, tremoloRamp);
         frequency.setTargetValue(newValue);
         saveCurrentFrequency();

@@ -41,7 +41,10 @@ void Amplifier::processBlock(AudioBuffer<float> &buffer, AudioBuffer<float> &mod
 
 
 // Rotary Class implementation
-Rotary::Rotary() : amp(1.0f) {}
+Rotary::Rotary() : amp(1.0f)
+{
+    sampleRate = 1.0;
+}
 
 
 Rotary::~Rotary() {}
