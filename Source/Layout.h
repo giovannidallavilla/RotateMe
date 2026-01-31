@@ -8,6 +8,9 @@ namespace GUI
     constexpr int padding_top = 165;
     constexpr int padding_left = 140;
     
+    constexpr float holeCornerSize = 18.0f;
+    constexpr float holeBorderThickness = 3.0f;
+    
     constexpr int cmdPlateRatio_width = 40;
     constexpr int cmdPlateRatio_height = 80;
     constexpr int presetPlateRatio_width = 50;
@@ -51,13 +54,38 @@ namespace GUI
     constexpr int rotaryVisualizerY = padding_top - 20;
     
     
-    constexpr float borderWidth = 1.5f;
+    constexpr float knobBorderWidth = 1.5f;
     constexpr float knobScale = 0.85f;
-    
-    
 }
 
+
+
+namespace MyColours
+{
+    const Colour plateBorder = Colour::fromRGB(69, 50, 32);
+    const Colour holeBgBase = Colour::fromRGB(45, 46, 47);
+    const Colour holeBgLight = Colour::fromRGB(64, 65, 66);
+    const Colour holeBorder = Colour::fromRGB(69, 50, 31);
+    
+    const Colour knobBaseLight = Colour::fromRGB(35, 38, 40);
+    const Colour knobBaseDark = Colour::fromRGB(26, 27, 27);
+    const Colour knobPointerLight = Colour::fromRGB(220, 220, 220);
+    const Colour knobPointerDark = Colour::fromRGB(140, 140, 140);
+    
+    const Colour sliderTrackLight = Colour::fromRGB(30, 30, 35);
+    const Colour sliderTrackDark = Colour::fromRGB(26, 27, 30);
+    const Colour sliderThumbBase = Colour::fromRGB(32, 34, 35);
+    const Colour sliderThumbHighlight = Colour::fromRGB(180, 180, 180);
+    const Colour sliderPointerLight = knobPointerLight;
+    const Colour sliderPointerDark = Colour::fromRGB(180, 180, 180);
+    
+    const Colour buttonBaseLight = Colour::fromRGB(60, 60, 60);
+    const Colour buttonBaseDark = Colour::fromRGB(29, 30, 31);
+}
+
+
 using namespace GUI;
+using namespace MyColours;
 
 
 class PlateComponent : public Component
@@ -84,6 +112,8 @@ class HoleComponent : public Component
     void paint(Graphics& g) override;
     
     private:
+    float cornerSize = 1.0f;
+    float borderThickness = 1.0f;
     
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(HoleComponent)
 };
@@ -98,6 +128,7 @@ class BrandComponent : public Component
     void paint(Graphics& g) override;
     
     private:
+    Font jauzaFont;
     
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(BrandComponent)
 };

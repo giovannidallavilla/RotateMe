@@ -21,10 +21,12 @@ class RotaryVisualizer : public Component, private Timer
     
     private:
     void timerCallback() override;
+    void generateShapes();
     
     float speed;
-    
     float currentAngle = 0.0f;
+    
+    Path hornsPath;
     
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(RotaryVisualizer)
 };

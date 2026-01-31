@@ -66,13 +66,6 @@ void RotateMeAudioProcessorEditor::resized()
 {
     woodTexture = generateWoodTexture();
     
-    addAndMakeVisible(presetBrowser);
-    addAndMakeVisible(nextPreset);
-    addAndMakeVisible(previousPreset);
-    addAndMakeVisible(load);
-    addAndMakeVisible(save);
-    
-    
     commandPlate.setBounds(-78 + padding_left, padding_top - 90, cmdPlateW, cmdPlateH);
     presetPlate.setBounds(presetPlateX, presetPlateY, presetPlateW, presetPlateH);
     upperHole.setBounds(upperHoleX, upperHoleY, holeW, holeH);
@@ -111,7 +104,7 @@ void RotateMeAudioProcessorEditor::setupSliderLinear(Slider &slider, Label &labe
 {
     label.setText(name, dontSendNotification);
     label.setJustificationType(Justification::centred);
-    label.attachToComponent(&dryWetSlider, false);
+    label.attachToComponent(&slider, false);
     slider.setSliderStyle(Slider::SliderStyle::LinearHorizontal);
     slider.setTextBoxStyle(Slider::TextBoxBelow, false, 80, 20);
     slider.setBounds(x, y, w, h);
@@ -313,6 +306,9 @@ void RotaryVisualizer::setRotationSpeed(float newValue)
 {
     speed = newValue;
 }
+
+
+void RotaryVisualizer::generateShapes() {}
 
 
 void RotaryVisualizer::paint(juce::Graphics& g)

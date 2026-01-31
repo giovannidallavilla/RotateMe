@@ -13,14 +13,18 @@ void PlateComponent::paint(Graphics& g)
 {
     auto bounds = getLocalBounds().toFloat();
     g.drawImage(texture, bounds);
-    g.setColour(Colour::fromRGB(69, 50, 32));
+    g.setColour(plateBorder);
     g.drawRoundedRectangle(bounds.reduced(1.0f), 10.0f, 3.0f);
 }
 
 
 
 // HoleComponent Class implemenation
-HoleComponent::HoleComponent() {}
+HoleComponent::HoleComponent()
+{
+    cornerSize = holeCornerSize;
+    borderThickness = holeBorderThickness;
+}
 
 
 HoleComponent::~HoleComponent() {}
@@ -29,27 +33,30 @@ HoleComponent::~HoleComponent() {}
 void HoleComponent::paint(Graphics &g)
 {
     auto bounds = getLocalBounds().toFloat();
-    float cornerSize = 18.0f;
     
     ColourGradient grad(
-                        Colour::fromRGB(45, 46, 47),
+                        holeBgBase,
                         0, 0,
-                        Colour::fromRGB(45, 46, 47),
+                        holeBgBase,
                         bounds.getWidth(), 0,
                         true
                         );
-    grad.addColour(0.5f, Colour::fromRGB(64, 65, 66));
+    grad.addColour(0.5f, holeBgLight);
     g.setGradientFill(grad);
     g.fillRoundedRectangle(bounds, cornerSize);
     
-    g.setColour(Colour::fromRGB(69, 50, 31));
-    g.drawRoundedRectangle(bounds.reduced(1.0f), cornerSize, 3.0f);
+    g.setColour(holeBorder);
+    g.drawRoundedRectangle(bounds.reduced(1.0f), cornerSize, borderThickness);
 }
 
 
 
 // BrandComponent Class implementation
-BrandComponent::BrandComponent() {}
+BrandComponent::BrandComponent()
+{
+    auto typeface = Typeface::createSystemTypefaceFor(BinaryData::Jauza_otf, BinaryData::Jauza_otfSize);
+    jauzaFont = Font(FontOptions(typeface).withHeight(48.0f));
+}
 
 
 BrandComponent::~BrandComponent() {}
@@ -57,9 +64,6 @@ BrandComponent::~BrandComponent() {}
 
 void BrandComponent::paint(Graphics &g)
 {
-    auto typeface = Typeface::createSystemTypefaceFor(BinaryData::Jauza_otf, BinaryData::Jauza_otfSize);
-    Font jauzaFont(FontOptions(typeface).withHeight(48.0f));
-    
     g.setColour(Colours::lightgrey);
     g.setFont(jauzaFont);
     g.drawText("RotateMe", cmdPlateX + cmdPlateW, padding_top - 340, 600, 600, juce::Justification::centred);
