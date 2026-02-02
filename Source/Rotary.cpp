@@ -94,6 +94,7 @@ void PitchDelay::prepareToPlay(float newSampleRate, float maxNumSamples)
         smoothedDelay[ch].reset(sampleRate, defaultRamp);
     }
     
+    writeIndex = 0;
     sampleRate = newSampleRate;
     memorySize = roundToInt(maxDelayTimeS * sampleRate) + maxNumSamples;
     

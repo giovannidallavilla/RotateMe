@@ -1,5 +1,7 @@
 #include "Layout.h"
 
+using namespace MyColours;
+using namespace GUI;
 
 
 // PlateComponent Class implementation
@@ -22,8 +24,8 @@ void PlateComponent::paint(Graphics& g)
 // HoleComponent Class implemenation
 HoleComponent::HoleComponent()
 {
-    cornerSize = holeCornerSize;
-    borderThickness = holeBorderThickness;
+    cornerSize = lowerH.cornerSize;
+    borderThickness = lowerH.borderSize;
 }
 
 
@@ -66,10 +68,10 @@ void BrandComponent::paint(Graphics &g)
 {
     g.setColour(Colours::lightgrey);
     g.setFont(jauzaFont);
-    g.drawText("RotateMe", cmdPlateX + cmdPlateW, padding_top - 340, 600, 600, juce::Justification::centred);
+    g.drawText("RotateMe", commandP.x + commandP.w, window.padding_top - 340, 600, 600, juce::Justification::centred);
     
     g.setFont(FontOptions(15.0f));
     g.setColour(Colours::white);
-    g.drawText("Developed by Giovanni Dalla Villa", presetPlateX + presetButtonW + 50, presetPlateY + presetLabelH + 20, textBoxW + 300, textBoxH + 50, juce::Justification::centred);
-    g.drawText("at Laboratorio di Informatica Musicale", presetPlateX + presetButtonW + 50, presetPlateY + presetLabelH + 40, textBoxW + 300, textBoxH + 50, juce::Justification::centred);
+    g.drawText("Developed by Giovanni Dalla Villa", presetP.x + presetB.w + 50, presetP.y + presetL.h + 20, textBox.w + 300, textBox.h + 50, juce::Justification::centred);
+    g.drawText("at Laboratorio di Informatica Musicale", presetP.x + presetB.w + 50, presetP.y + presetL.h + 40, textBox.w + 300, textBox.h + 50, juce::Justification::centred);
 }

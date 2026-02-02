@@ -1,63 +1,6 @@
 #pragma once
 #include <JuceHeader.h>
 
-namespace GUI
-{
-    constexpr int width = 1280;
-    constexpr int height = 720;
-    constexpr int padding_top = 165;
-    constexpr int padding_left = 140;
-    
-    constexpr float holeCornerSize = 18.0f;
-    constexpr float holeBorderThickness = 3.0f;
-    
-    constexpr int cmdPlateRatio_width = 40;
-    constexpr int cmdPlateRatio_height = 80;
-    constexpr int presetPlateRatio_width = 50;
-    constexpr int presetPlateRatio_height = 25;
-    
-    constexpr float plateCornerRadius = 12.0f;
-    constexpr float plateBorderThickness = 4.0f;
-    
-    constexpr int cmdPlateW = (width / 100) * cmdPlateRatio_width;
-    constexpr int cmdPlateH = (height / 100) * cmdPlateRatio_height;
-    constexpr int cmdPlateX = padding_left;
-    constexpr int cmdPlateY = padding_top;
-    
-    constexpr int presetPlateW = (width / 100) * presetPlateRatio_width;
-    constexpr int presetPlateH = (height / 100) * presetPlateRatio_height;
-    constexpr int presetPlateX = width - (padding_left + presetPlateW - 78);
-    constexpr int presetPlateY = padding_top + 290;
-    
-    constexpr int cmdKnobW = 120;
-    constexpr int cmdKnobH = 120;
-    constexpr float cmdKnobCorner = 0.25f;
-    constexpr float cmdKnobThickness = 2.0f;
-    constexpr int presetButtonW = 60;
-    constexpr int presetButtonH = 60;
-    constexpr int presetLabelW = presetPlateW - (2 * presetButtonW) - 80;
-    constexpr int presetLabelH = 60;
-    
-    constexpr int textBoxW = 74;
-    constexpr int textBoxH = 21;
-    
-    constexpr int holeW = width - 60;
-    constexpr int holeH = 25;
-    constexpr int upperHoleX = 30;
-    constexpr int upperHoleY = 20;
-    constexpr int bottomHoleX = 30;
-    constexpr int bottomHoleY = height - holeH - 30;
-    
-    constexpr int rotaryVisualizerW = presetLabelW * 0.75;
-    constexpr int rotaryVisualizerH = rotaryVisualizerW;
-    constexpr int rotaryVisualizerX = presetPlateX + 95 + presetButtonW;
-    constexpr int rotaryVisualizerY = padding_top - 20;
-    
-    
-    constexpr float knobBorderWidth = 1.5f;
-    constexpr float knobScale = 0.85f;
-}
-
 
 
 namespace MyColours
@@ -66,26 +9,82 @@ namespace MyColours
     const Colour holeBgBase = Colour::fromRGB(45, 46, 47);
     const Colour holeBgLight = Colour::fromRGB(64, 65, 66);
     const Colour holeBorder = Colour::fromRGB(69, 50, 31);
-    
+
     const Colour knobBaseLight = Colour::fromRGB(35, 38, 40);
     const Colour knobBaseDark = Colour::fromRGB(26, 27, 27);
     const Colour knobPointerLight = Colour::fromRGB(220, 220, 220);
     const Colour knobPointerDark = Colour::fromRGB(140, 140, 140);
-    
+
     const Colour sliderTrackLight = Colour::fromRGB(30, 30, 35);
     const Colour sliderTrackDark = Colour::fromRGB(26, 27, 30);
     const Colour sliderThumbBase = Colour::fromRGB(32, 34, 35);
     const Colour sliderThumbHighlight = Colour::fromRGB(180, 180, 180);
     const Colour sliderPointerLight = knobPointerLight;
     const Colour sliderPointerDark = Colour::fromRGB(180, 180, 180);
-    
+
     const Colour buttonBaseLight = Colour::fromRGB(60, 60, 60);
     const Colour buttonBaseDark = Colour::fromRGB(29, 30, 31);
+
+    const Colour hornMetalLight = Colour::fromRGB (40, 42, 45);
+    const Colour hornMetalDark = Colour::fromRGB (10, 11, 12);
+    const Colour hornHubLight = Colour::fromRGB (100, 105, 110);
+    const Colour hornHubDark = Colour::fromRGB (20, 22, 25);
 }
 
 
-using namespace GUI;
-using namespace MyColours;
+
+namespace GUI
+{
+    struct WindowLayout
+    {
+        int w, h, padding_left, padding_top;
+        int padding_right = w - padding_left;
+        int padding_bottom = h - padding_top;
+    };
+    
+    struct ComponentLayout
+    {
+        int x, y, w, h;
+        float cornerSize, borderSize;
+    };
+    
+    struct KnobLayout
+    {
+        int w, h;
+        float cornerSize, borderSize, scale;
+    };
+    
+    struct VisualizerLayout
+    {
+        int x, y, w, h;
+        float openingSize, neckSize, hubSize;
+    };
+    
+    struct TextBoxLayout
+    {
+        int w, h;
+    };
+    
+    
+    
+    const WindowLayout window = {1280, 720, 140, 165};
+    const auto percW = (window.w / 100);
+    const auto percH = (window.h / 100);
+    
+    const ComponentLayout commandP = {window.padding_left, window.padding_top, percW * 40, percH * 80, 12.0f, 4.0f};
+    const ComponentLayout presetP = {window.padding_right - 44 * (window.w / 100), window.padding_top + 290, percW * 50, percH * 25, 12.0f, 4.0f};
+    const ComponentLayout upperH = {30, 20, window.w - 60, 25, 18.0f, 3.0f};
+    const ComponentLayout lowerH = {30, window.h - 55, window.w - 60, 25, 18.0f, 3.0f};
+    const ComponentLayout presetL = {0, 0, presetP.w - 200, 60};
+    
+    const VisualizerLayout visualizer = {presetP.x + 155, window.padding_top - 20, (int)(presetL.w * 0.75), (int)(presetL.w * 0.75), 50.0f, 7.0f, 24.0f};
+    
+    const KnobLayout cmdKnob = {120, 120, 0.25f, 2.0f, 0.85f};
+    const KnobLayout presetB = {60, 60, 0, 0, 1.0f};
+    
+    const TextBoxLayout textBox = {74, 21};
+}
+
 
 
 class PlateComponent : public Component

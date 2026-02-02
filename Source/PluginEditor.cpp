@@ -3,7 +3,9 @@
 #include "PluginParameters.h"
 #include "Layout.h"
 
+using namespace MyColours;
 using namespace GUI;
+
 
 
 // RotateMeAudioProcessorEditor Class implementation
@@ -12,8 +14,8 @@ RotateMeAudioProcessorEditor::RotateMeAudioProcessorEditor (RotateMeAudioProcess
     : AudioProcessorEditor (&p), audioProcessor (p), valueTreeState(valueTreeState), commandPlate(commandPlateTexture), presetPlate(presetPlateTexture), rotaryVisualizer(p)
 {
     woodTexture = generateWoodTexture();
-    commandPlateTexture = generatePlateTexture(cmdPlateW, cmdPlateH);
-    presetPlateTexture = generatePlateTexture(presetPlateW, presetPlateH);
+    commandPlateTexture = generatePlateTexture(GUI::commandP.w, GUI::presetP.h);
+    presetPlateTexture = generatePlateTexture(GUI::commandP.w, GUI::presetP.h);
     
     addAndMakeVisible(commandPlate);
     addAndMakeVisible(presetPlate);
@@ -23,13 +25,13 @@ RotateMeAudioProcessorEditor::RotateMeAudioProcessorEditor (RotateMeAudioProcess
     setupPresetBrowser();
     updatePresetBrowser();
     
-    setSize (width, height);
+    setSize (window.w, window.h);
     
-    setupSliderRotary(satSlider, satLabel, cmdPlateX, cmdPlateY, cmdKnobW, cmdKnobH, cmdKnobCorner + 0.5f, "Drive");
-    setupSliderRotary(satTypeSlider, satTypeLabel, cmdPlateX + cmdPlateW - 280, cmdPlateY, cmdKnobW, cmdKnobH, cmdKnobCorner, "Saturation Type");
-    setupSliderRotary(speedSlider, speedLabel, cmdPlateX, cmdPlateY + 180, cmdKnobW, cmdKnobH, cmdKnobCorner, "Speed");
-    setupSliderRotary(brakeSlider, brakeLabel, cmdPlateX + cmdPlateW - 280, cmdPlateY + 180, cmdKnobW, cmdKnobH, cmdKnobCorner, "Brake");
-    setupSliderLinear(dryWetSlider, dwLabel, cmdPlateX - 15, cmdPlateY + 350, 350, 50, "Dry/Wet");
+    setupSliderRotary(satSlider, satLabel, commandP.x, commandP.y, cmdKnob.w, cmdKnob.h, cmdKnob.cornerSize + 0.5f, "Drive");
+    setupSliderRotary(satTypeSlider, satTypeLabel, commandP.x + commandP.w - 280, commandP.y, cmdKnob.w, cmdKnob.h, cmdKnob.cornerSize, "Saturation Type");
+    setupSliderRotary(speedSlider, speedLabel, commandP.x, commandP.y + 180, cmdKnob.w, cmdKnob.h, cmdKnob.cornerSize, "Speed");
+    setupSliderRotary(brakeSlider, brakeLabel, commandP.x + commandP.w - 280, commandP.y + 180, cmdKnob.w, cmdKnob.h, cmdKnob.cornerSize, "Brake");
+    setupSliderLinear(dryWetSlider, dwLabel, commandP.x - 15, commandP.y + 350, 350, 50, "Dry/Wet");
     
     dryWetAttachment.reset(new SliderAttachment(valueTreeState, Parameters::nameDryWet , dryWetSlider));
     satAttachment.reset(new SliderAttachment(valueTreeState, Parameters::nameSatAmount , satSlider));
@@ -66,21 +68,21 @@ void RotateMeAudioProcessorEditor::resized()
 {
     woodTexture = generateWoodTexture();
     
-    commandPlate.setBounds(-78 + padding_left, padding_top - 90, cmdPlateW, cmdPlateH);
-    presetPlate.setBounds(presetPlateX, presetPlateY, presetPlateW, presetPlateH);
-    upperHole.setBounds(upperHoleX, upperHoleY, holeW, holeH);
-    bottomHole.setBounds(bottomHoleX, bottomHoleY, holeW, holeH);
+    commandPlate.setBounds(-78 + window.padding_left, window.padding_top - 90, commandP.w, commandP.h);
+    presetPlate.setBounds(presetP.x, presetP.y, presetP.w, presetP.h);
+    upperHole.setBounds(upperH.x, upperH.y, upperH.w, upperH.h);
+    bottomHole.setBounds(lowerH.x, lowerH.y, lowerH.w, lowerH.h);
     
     credits.setBounds(getLocalBounds());
-    presetBrowser.setBounds(presetPlateX + 40 + presetButtonW, presetPlateY + 20, presetLabelW, presetLabelH);
-    previousPreset.setBounds(presetPlateX + 20, presetPlateY + 20, presetButtonW, presetButtonH);
-    nextPreset.setBounds(presetPlateX + presetLabelW + 60 + presetButtonW, presetPlateY + 20, presetButtonW, presetButtonH);
-    load.setBounds(presetPlateX + 20, presetPlateY + 100, presetButtonW, presetButtonH);
-    save.setBounds(presetPlateX + presetLabelW + 60 + presetButtonW, presetPlateY + 100, presetButtonW, presetButtonH);
-    rotaryVisualizer.setBounds (rotaryVisualizerX,
-                                rotaryVisualizerY,
-                                rotaryVisualizerW,
-                                rotaryVisualizerH);
+    presetBrowser.setBounds(presetP.x + 40 + presetB.w, presetP.y + 20, presetL.w, presetL.h);
+    previousPreset.setBounds(presetP.x + 20, presetP.y + 20, presetB.w, presetB.h);
+    nextPreset.setBounds(presetP.x + presetL.w + 60 + presetB.w, presetP.y+ 20, presetB.w, presetB.w);
+    load.setBounds(presetP.x + 20, presetP.y+ 100, presetB.w, presetB.w);
+    save.setBounds(presetP.x + presetL.w + 60 + presetB.w, presetP.y + 100, presetB.w, presetB.h);
+    rotaryVisualizer.setBounds (visualizer.x,
+                                visualizer.y,
+                                visualizer.w,
+                                visualizer.h);
 }
 
 
@@ -295,6 +297,9 @@ void RotateMeAudioProcessorEditor::savePreset()
 // RotaryVisualizer Class implementation
 RotaryVisualizer::RotaryVisualizer(RotateMeAudioProcessor& p) : processor(p)
 {
+    hornOpening = visualizer.openingSize;
+    neckWidth = visualizer.neckSize;
+    hubSize = visualizer.hubSize;
     startTimerHz(60);
 }
 
@@ -308,17 +313,12 @@ void RotaryVisualizer::setRotationSpeed(float newValue)
 }
 
 
-void RotaryVisualizer::generateShapes() {}
-
-
 void RotaryVisualizer::paint(juce::Graphics& g)
 {
     auto area = getLocalBounds().toFloat().reduced(10.0f);
     auto centre = area.getCentre();
     
     float hornLength = area.getWidth() * 0.40f;
-    float hornOpening = 50.0f;
-    float neckWidth = 7.0f;
 
     juce::Path horns;
     
@@ -342,9 +342,9 @@ void RotaryVisualizer::paint(juce::Graphics& g)
     g.setColour (juce::Colours::black.withAlpha (0.4f));
     g.fillPath (horns, juce::AffineTransform::translation (5.0f, 5.0f));
 
-    juce::ColourGradient metal (juce::Colour::fromRGB (40, 42, 45), 0, centre.y - hornOpening,
-                                juce::Colour::fromRGB (10, 11, 12), 0, centre.y + hornOpening, false);
-    metal.addColour (0.5, juce::Colour::fromRGB (90, 93, 98)); // Riflesso luce zenitale
+    juce::ColourGradient metal (hornMetalLight, 0, centre.y - hornOpening,
+                                hornMetalDark, 0, centre.y + hornOpening, false);
+    metal.addColour (0.5, juce::Colour::fromRGB (90, 93, 98));
     g.setGradientFill (metal);
     g.fillPath (horns);
 
@@ -363,11 +363,10 @@ void RotaryVisualizer::paint(juce::Graphics& g)
     g.setColour (juce::Colours::white.withAlpha (0.3f));
     g.strokePath (horns, juce::PathStrokeType (1.0f));
 
-    float hubSize = 24.0f;
     juce::Rectangle<float> hubRect (centre.x - hubSize/2, centre.y - hubSize/2, hubSize, hubSize);
     
-    juce::ColourGradient hubGrad (juce::Colour::fromRGB (100, 105, 110), centre,
-                                  juce::Colour::fromRGB (20, 22, 25), centre.translated (hubSize, hubSize), true);
+    juce::ColourGradient hubGrad (hornHubLight, centre,
+                                  hornHubDark, centre.translated (hubSize, hubSize), true);
     g.setGradientFill (hubGrad);
     g.fillEllipse (hubRect);
     

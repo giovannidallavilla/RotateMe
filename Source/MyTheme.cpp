@@ -1,8 +1,10 @@
 #include "MyTheme.h"
 #include "Layout.h"
 #include "PluginProcessor.h"
+
 using namespace GUI;
 using namespace MyColours;
+
 
 
 // MyLookAndFeel Class implementation
@@ -36,7 +38,7 @@ void MyLookAndFeel::drawRotarySlider(Graphics &g, int x, int y, int width, int h
                                      float sliderPosProportional, float rotaryStartAngle,
                                      float rotaryEndAngle, Slider &slider)
 {
-    const float radius = (jmin(width, height) * 0.5f * knobScale) - (knobBorderWidth * 0.5f);
+    const float radius = (jmin(width, height) * 0.5f * cmdKnob.scale) - (cmdKnob.borderSize * 0.5f);
     const float cx = x + width * 0.5f;
     const float cy = y + height * 0.5f;
     const float kx = cx - radius;
