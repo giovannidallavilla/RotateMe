@@ -19,7 +19,7 @@ class DryWet
     void mixSignals(AudioBuffer<float>& destinationBuffer);
     
     private:
-    float dryWetRatio;
+    float dryWetRatio = 1.0;
     SmoothedValue<float, ValueSmoothingTypes::Linear> dryGain;
     SmoothedValue<float, ValueSmoothingTypes::Linear> wetGain;
     

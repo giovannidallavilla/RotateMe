@@ -41,7 +41,10 @@ void Amplifier::processBlock(AudioBuffer<float> &buffer, AudioBuffer<float> &mod
 
 
 // Rotary Class implementation
-Rotary::Rotary() : amp(1.0f) {}
+Rotary::Rotary() : amp(1.0f)
+{
+    sampleRate = 1.0;
+}
 
 
 Rotary::~Rotary() {}
@@ -91,6 +94,7 @@ void PitchDelay::prepareToPlay(float newSampleRate, float maxNumSamples)
         smoothedDelay[ch].reset(sampleRate, defaultRamp);
     }
     
+    writeIndex = 0;
     sampleRate = newSampleRate;
     memorySize = roundToInt(maxDelayTimeS * sampleRate) + maxNumSamples;
     

@@ -15,7 +15,6 @@ Saturation::~Saturation() {}
 
 void Saturation::prepareToPlay(int numChannels, int numSamples, double sampleRate)
 {
-    saturationBuffer.setSize(numChannels, numSamples);
     drive.reset(sampleRate, defaultRamp);
 }
 
@@ -25,20 +24,24 @@ void Saturation::processBlock(AudioBuffer<float> &buffer)
     const auto numChannels = buffer.getNumChannels();
     const auto numSamples = buffer.getNumSamples();
     auto data = buffer.getArrayOfWritePointers();
+    auto* leftCh = data[0];
+    auto* rightCh = (numChannels > 1) ? data[1] : nullptr;
     
-    auto saturationData = saturationBuffer.getArrayOfWritePointers();
-    for (int ch = 0; ch < numChannels; ch++)
+    for (int s = 0; s < numSamples; s++)
     {
-        for (int s = 0; s < numSamples; s++)
+        auto driveValue = drive.getNextValue();
+        auto mix = jmap(driveValue, 0.1f, 12.0f, 0.0f, 0.1f);
+        
+        auto sampleLeft = leftCh[s];
+        auto satSampleLeft = (saturationType == 1) ? softHard(sampleLeft, 0.9f, driveValue) : tube(sampleLeft, driveValue);
+        leftCh[s] = sampleLeft * (1 - mix) + satSampleLeft * mix;
+        
+        if (rightCh != nullptr)
         {
-            auto driveValue = drive.getNextValue();
-            auto sample = data[ch][s];
-            float satSample = (saturationType == 1) ? softHard(sample, 0.9f, driveValue) : tube(sample, driveValue);
-            auto mix = jmap(driveValue, 0.1f, 12.0f, 0.0f, 0.1f);
-                
-            saturationData[ch][s] = sample * (1 - mix) + satSample * mix;
+            auto sampleRight = rightCh[s];
+            auto satSampleRight = (saturationType == 1) ? softHard(sampleRight, 0.9f, driveValue) : tube(sampleRight, driveValue);
+            rightCh[s] = sampleRight * (1 - mix) + satSampleRight * mix;
         }
-        FloatVectorOperations::copy(data[ch], saturationData[ch], numSamples);
     }
 }
 

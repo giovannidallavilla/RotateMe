@@ -3,6 +3,7 @@
 #include <JuceHeader.h>
 #include "PluginProcessor.h"
 #include "MyTheme.h"
+#include "Layout.h"
 
 typedef AudioProcessorValueTreeState::SliderAttachment SliderAttachment;
 
@@ -22,8 +23,12 @@ class RotaryVisualizer : public Component, private Timer
     void timerCallback() override;
     
     float speed;
-    
     float currentAngle = 0.0f;
+    
+    float hornLength = 1.0f;
+    float hornOpening = 1.0f;
+    float neckWidth = 1.0f;
+    float hubSize = 1.0f;
     
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(RotaryVisualizer)
 };
@@ -44,13 +49,17 @@ private:
     AudioProcessorValueTreeState& valueTreeState;
     
     Slider dryWetSlider;
+    Label dwLabel;
     Slider satSlider;
+    Label satLabel;
     Slider satTypeSlider;
+    Label satTypeLabel;
     Slider speedSlider;
+    Label speedLabel;
     Slider brakeSlider;
-    void setupSlider(Slider& slider, int x, int y, int w, int h, float rotationWindow);
-    
-    MyLookAndFeel myTheme;
+    Label brakeLabel;
+    void setupSliderRotary(Slider& slider, Label& label, int x, int y, int w, int h, float rotationWindow, String name);
+    void setupSliderLinear(Slider& slider, Label& label, int x, int y, int w, int h, String name);
     
     std::unique_ptr<SliderAttachment> dryWetAttachment;
     std::unique_ptr<SliderAttachment> satAttachment;
@@ -64,11 +73,19 @@ private:
     Image generateWoodTexture();
     Image generatePlateTexture(int width, int height);
     
+    MyLookAndFeel myTheme;
+    PlateComponent commandPlate;
+    PlateComponent presetPlate;
+    HoleComponent upperHole;
+    HoleComponent bottomHole;
+    BrandComponent credits;
+    
     Label presetBrowser;
     TextButton nextPreset { ">" };
     TextButton previousPreset { "<" };
     TextButton load { "Load" };
     TextButton save { "Save" };
+    void setupPresetBrowser();
     void updatePresetBrowser();
     void loadPreset();
     void savePreset();

@@ -28,8 +28,9 @@
       </GROUP>
       <GROUP id="{8C6C0D17-43F3-2AE4-2517-111351499809}" name="GUI">
         <FILE id="Nrxu7O" name="Jauza.otf" compile="0" resource="1" file="../../../Library/Fonts/Jauza.otf"/>
-        <FILE id="otKXvT" name="Layout.h" compile="0" resource="0" file="Source/Layout.h"/>
         <FILE id="LG5n1x" name="MyTheme.cpp" compile="1" resource="0" file="Source/MyTheme.cpp"/>
+        <FILE id="foyejh" name="Layout.cpp" compile="1" resource="0" file="Source/Layout.cpp"/>
+        <FILE id="HufHCh" name="Layout.h" compile="0" resource="0" file="Source/Layout.h"/>
         <FILE id="rvk1GZ" name="MyTheme.h" compile="0" resource="0" file="Source/MyTheme.h"/>
         <FILE id="wAMznC" name="PluginEditor.cpp" compile="1" resource="0"
               file="Source/PluginEditor.cpp"/>
