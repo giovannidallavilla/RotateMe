@@ -24,8 +24,6 @@ class Saturation
     
     SmoothedValue<float, ValueSmoothingTypes::Multiplicative> drive;
     
-    AudioBuffer<float> saturationBuffer;
-    
     inline float tube(float sample, float driveValue);
     
     inline float softHard(float sample, float threshold, float driveValue);

@@ -169,7 +169,7 @@ void RotateMeAudioProcessor::parameterChanged(const String &parameterID, float n
     
     if (parameterID == Parameters::nameSatType)
     {
-        int value = newValue == 1 ? 0 : 1;
+        int value = !newValue;
         saturator.setSatType(value);
     }
 }

@@ -33,6 +33,12 @@ class MyLookAndFeel : public LookAndFeel_V4
     
     int numTicks = 21;
     
+    Path knobTop;
+    Path knobPointer;
+    Path sliderPointer;
+    
+    void generateShapes();
+    
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(MyLookAndFeel)
 };
 
