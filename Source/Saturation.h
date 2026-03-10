@@ -18,7 +18,6 @@ class Saturation
     
     void setSatType(int newValue);
     
-    
     private:
     int saturationType = 0;
     
