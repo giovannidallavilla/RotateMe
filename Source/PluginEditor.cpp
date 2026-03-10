@@ -7,12 +7,13 @@ using namespace MyColours;
 using namespace GUI;
 
 
-
 // RotateMeAudioProcessorEditor Class implementation
 //==============================================================================
 RotateMeAudioProcessorEditor::RotateMeAudioProcessorEditor (RotateMeAudioProcessor& p, AudioProcessorValueTreeState& valueTreeState)
     : AudioProcessorEditor (&p), audioProcessor (p), valueTreeState(valueTreeState), commandPlate(commandPlateTexture), presetPlate(presetPlateTexture), rotaryVisualizer(p)
 {
+    setSize (window.w, window.h);
+    
     woodTexture = generateWoodTexture();
     commandPlateTexture = generatePlateTexture(GUI::commandP.w, GUI::presetP.h);
     presetPlateTexture = generatePlateTexture(GUI::commandP.w, GUI::presetP.h);
@@ -24,8 +25,6 @@ RotateMeAudioProcessorEditor::RotateMeAudioProcessorEditor (RotateMeAudioProcess
     addAndMakeVisible(credits);
     setupPresetBrowser();
     updatePresetBrowser();
-    
-    setSize (window.w, window.h);
     
     setupSliderRotary(satSlider, satLabel, commandP.x, commandP.y, cmdKnob.w, cmdKnob.h, cmdKnob.cornerSize + 0.5f, "Drive");
     setupSliderRotary(satTypeSlider, satTypeLabel, commandP.x + commandP.w - 280, commandP.y, cmdKnob.w, cmdKnob.h, cmdKnob.cornerSize, "Saturation Type");

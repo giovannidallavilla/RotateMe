@@ -1,6 +1,5 @@
 #pragma once
 
-
 namespace DSPValues {
     constexpr float defaultRamp = 0.02f;
     constexpr float brakeRamp = 2.0f;

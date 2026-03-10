@@ -6,7 +6,6 @@
 #include "Saturation.h"
 #include "Rotary.h"
 
-
 class RotateMeAudioProcessor : public juce::AudioProcessor, public AudioProcessorValueTreeState::Listener
 {
 public:
