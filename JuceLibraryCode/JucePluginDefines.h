@@ -44,7 +44,7 @@
  #define JucePlugin_Name                   "RotateMe"
 #endif
 #ifndef  JucePlugin_Desc
- #define JucePlugin_Desc                   "Easy to use Leslie 740 emulation."
+ #define JucePlugin_Desc                   "Faithful emulation of the legendary Leslie 147 rotary speaker cabinet."
 #endif
 #ifndef  JucePlugin_Manufacturer
  #define JucePlugin_Manufacturer           "LIM"
