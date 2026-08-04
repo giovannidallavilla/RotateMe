@@ -2,6 +2,7 @@
 #include "PluginEditor.h"
 #include "PluginParameters.h"
 #include "DSPValues.h"
+
 using namespace DSPValues;
 
 
@@ -16,7 +17,12 @@ RotateMeAudioProcessor::RotateMeAudioProcessor()
     timeModulation(Parameters::defaultPitchTime, 1.0),
     ampModulation(Parameters::defaultAmpValue, 1.0)
 {
-    Parameters::addGlobalListener(parameters, this);
+    dryWetParam    = parameters.getRawParameterValue(Parameters::nameDryWet);
+    satAmountParam = parameters.getRawParameterValue(Parameters::nameSatAmount);
+    modSpeedParam  = parameters.getRawParameterValue(Parameters::nameModSpeed);
+    brakeParam     = parameters.getRawParameterValue(Parameters::nameBrake);
+    satTypeParam   = parameters.getRawParameterValue(Parameters::nameSatType);
+
     factoryPresets = {
         { "Init", BinaryData::Init_xml, BinaryData::Init_xmlSize },
         { "Warm", BinaryData::Warm_xml, BinaryData::Warm_xmlSize },
@@ -28,8 +34,6 @@ RotateMeAudioProcessor::RotateMeAudioProcessor()
     {
         factoryPresetsNames.add(p.name);
     }
-    
-    updateAllParameters();
 }
 
 
@@ -51,6 +55,12 @@ void RotateMeAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlo
     pitchModulation.clear();
     gainModulation.setSize(2, samplesPerBlock);
     gainModulation.clear();
+
+    prevDryWet    = -1.0f;
+    prevSatAmount = -1.0f;
+    prevModSpeed  = -1.0f;
+    prevBrake     = -1.0f;
+    prevSatType   = -1.0f;
 }
 
 
@@ -67,6 +77,8 @@ void RotateMeAudioProcessor::releaseResources()
 void RotateMeAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::MidiBuffer& midiMessages)
 {
     juce::ScopedNoDenormals noDenormals;
+    
+    updateAudioParameters();
     
     const auto numSamples = buffer.getNumSamples();
     
@@ -101,7 +113,11 @@ void RotateMeAudioProcessor::setStateInformation(const void *data, int sizeInByt
         if (xmlState->hasTagName(parameters.state.getType()))
         {
             parameters.replaceState(ValueTree::fromXml(*xmlState));
-            updateAllParameters();
+            prevDryWet    = -1.0f;
+            prevSatAmount = -1.0f;
+            prevModSpeed  = -1.0f;
+            prevBrake     = -1.0f;
+            prevSatType   = -1.0f;
         }
 }
 
@@ -114,74 +130,81 @@ void RotateMeAudioProcessor::getStateInformation(juce::MemoryBlock &destData)
 }
 
 
-void RotateMeAudioProcessor::parameterChanged(const String &parameterID, float newValue)
+void RotateMeAudioProcessor::updateAudioParameters()
 {
-    if (parameterID == Parameters::nameDryWet)
+    if (dryWetParam != nullptr)
     {
-        drywetter.setDWRatio(newValue);
-    }
-    
-    if (parameterID == Parameters::nameModSpeed && !isBraked)
-    {
-        if (newValue == 0)
+        const float currentDryWet = dryWetParam->load();
+        if (currentDryWet != prevDryWet)
         {
-            pitchLfo.setChorus();
-            rotary.setPitchDepth(chorusDepth);
-            ampLfo.setChorus();
-            rotationSpeed.store(48.0f);
-        }
-        else
-        {
-            pitchLfo.setTremolo(6.0);
-            rotary.setPitchDepth(tremoloDepth);
-            ampLfo.setTremolo(5.0);
-            rotationSpeed.store(390.0f);
+            drywetter.setDWRatio(currentDryWet);
+            prevDryWet = currentDryWet;
         }
     }
     
-    if (parameterID == Parameters::nameSatAmount)
+    if (satAmountParam != nullptr)
     {
-        saturator.setDrive(newValue);
-    }
-    
-    if (parameterID == Parameters::nameBrake)
-    {
-        if (newValue)
+        const float currentSatAmount = satAmountParam->load();
+        if (currentSatAmount != prevSatAmount)
         {
-            pitchLfo.saveCurrentFrequency();
-            ampLfo.saveCurrentFrequency();
-            pitchLfo.brake();
-            ampLfo.brake();
-            rotationSpeed.store(0.0f);
-            isBraked = true;
-        }
-        else
-        {
-            pitchLfo.recoverLastFrequency();
-            auto depth = (pitchLfo.getCurrentFrequency() == 6.0f) ? chorusDepth : tremoloDepth;
-            rotary.setPitchDepth(depth);
-            ampLfo.recoverLastFrequency();
-            auto freq = (ampLfo.getCurrentFrequency() == 5.0f) ? 390.0f : 48.0f;
-            rotationSpeed.store(freq);
-            isBraked = false;
+            saturator.setDrive(currentSatAmount);
+            prevSatAmount = currentSatAmount;
         }
     }
     
-    if (parameterID == Parameters::nameSatType)
+    if (satTypeParam != nullptr)
     {
-        int value = !newValue;
-        saturator.setSatType(value);
+        const float currentSatType = satTypeParam->load();
+        if (currentSatType != prevSatType)
+        {
+            int value = !static_cast<int>(currentSatType);
+            saturator.setSatType(value);
+            prevSatType = currentSatType;
+        }
     }
-}
-
-
-void RotateMeAudioProcessor::updateAllParameters()
-{
-    std::vector<String> params = { "BK", "DW", "MS", "SA", "ST" };
-    for (auto& s : params)
+    
+    if (brakeParam != nullptr && modSpeedParam != nullptr)
     {
-        auto p = parameters.getParameter(s);
-        p->sendValueChangedMessageToListeners(p->getValue());
+        const float currentBrake = brakeParam->load();
+        const float currentModSpeed = modSpeedParam->load();
+        
+        bool brakeRequested = (currentBrake > 0.5f);
+        
+        if (brakeRequested != isBraked || currentModSpeed != prevModSpeed)
+        {
+            if (brakeRequested)
+            {
+                if (!isBraked)
+                {
+                    pitchLfo.saveCurrentFrequency();
+                    ampLfo.saveCurrentFrequency();
+                    pitchLfo.brake();
+                    ampLfo.brake();
+                    rotationSpeed.store(0.0f);
+                    isBraked = true;
+                }
+            }
+            else
+            {
+                isBraked = false;
+                if (currentModSpeed == 0.0f)
+                {
+                    pitchLfo.setChorus();
+                    rotary.setPitchDepth(chorusDepth);
+                    ampLfo.setChorus();
+                    rotationSpeed.store(48.0f);
+                }
+                else
+                {
+                    pitchLfo.setTremolo(6.0f);
+                    rotary.setPitchDepth(tremoloDepth);
+                    ampLfo.setTremolo(5.0f);
+                    rotationSpeed.store(390.0f);
+                }
+            }
+            prevBrake = currentBrake;
+            prevModSpeed = currentModSpeed;
+        }
     }
 }
 

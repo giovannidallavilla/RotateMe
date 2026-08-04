@@ -6,8 +6,7 @@
 #include "Saturation.h"
 #include "Rotary.h"
 
-
-class RotateMeAudioProcessor : public juce::AudioProcessor, public AudioProcessorValueTreeState::Listener
+class RotateMeAudioProcessor : public juce::AudioProcessor
 {
 public:
     RotateMeAudioProcessor();
@@ -49,10 +48,21 @@ public:
 
     
 private:
-    void parameterChanged(const String& parameterID, float newValue) override;
-    void updateAllParameters();
+    void updateAudioParameters();
     
     AudioProcessorValueTreeState parameters;
+    
+    std::atomic<float>* dryWetParam    = nullptr;
+    std::atomic<float>* satAmountParam = nullptr;
+    std::atomic<float>* modSpeedParam  = nullptr;
+    std::atomic<float>* brakeParam     = nullptr;
+    std::atomic<float>* satTypeParam   = nullptr;
+    
+    float prevDryWet    = -1.0f;
+    float prevSatAmount = -1.0f;
+    float prevModSpeed  = -1.0f;
+    float prevBrake     = -1.0f;
+    float prevSatType   = -1.0f;
     
     AudioBuffer<float> pitchModulation;
     AudioBuffer<float> gainModulation;
@@ -67,7 +77,7 @@ private:
     ParameterModulation timeModulation;
     ParameterModulation ampModulation;
     
-    bool isBraked;
+    bool isBraked = false;
     
     juce::StringArray factoryPresetsNames;
     struct FactoryPresets

@@ -6,7 +6,6 @@ using namespace GUI;
 using namespace MyColours;
 
 
-
 // MyLookAndFeel Class implementation
 MyLookAndFeel::MyLookAndFeel()
 {

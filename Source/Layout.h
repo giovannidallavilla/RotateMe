@@ -1,8 +1,6 @@
 #pragma once
 #include <JuceHeader.h>
 
-
-
 namespace MyColours
 {
     const Colour plateBorder = Colour::fromRGB(69, 50, 32);
@@ -30,8 +28,6 @@ namespace MyColours
     const Colour hornHubLight = Colour::fromRGB (100, 105, 110);
     const Colour hornHubDark = Colour::fromRGB (20, 22, 25);
 }
-
-
 
 namespace GUI
 {
@@ -85,8 +81,6 @@ namespace GUI
     const TextBoxLayout textBox = {74, 21};
 }
 
-
-
 class PlateComponent : public Component
 {
     public:
@@ -100,7 +94,6 @@ class PlateComponent : public Component
     
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(PlateComponent)
 };
-
 
 class HoleComponent : public Component
 {
@@ -116,7 +109,6 @@ class HoleComponent : public Component
     
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(HoleComponent)
 };
-
 
 class BrandComponent : public Component
 {

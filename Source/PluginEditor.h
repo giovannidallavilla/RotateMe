@@ -7,7 +7,6 @@
 
 typedef AudioProcessorValueTreeState::SliderAttachment SliderAttachment;
 
-
 class RotaryVisualizer : public Component, private Timer
 {
     public:
@@ -22,7 +21,7 @@ class RotaryVisualizer : public Component, private Timer
     private:
     void timerCallback() override;
     
-    float speed;
+    float speed = 1.0;
     float currentAngle = 0.0f;
     
     float hornLength = 1.0f;

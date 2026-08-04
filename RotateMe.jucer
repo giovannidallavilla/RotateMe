@@ -2,7 +2,7 @@
 
 <JUCERPROJECT id="ky7Egu" name="RotateMe" projectType="audioplug" useAppConfig="0"
               jucerFormatVersion="1" version="1.0.0" companyName="LIM" companyWebsite="www.lim.di.unimi.it"
-              pluginName="RotateMe" pluginDesc="Easy to use Leslie 740 emulation."
+              pluginName="RotateMe" pluginDesc="Faithful emulation of the legendary Leslie 147 rotary speaker cabinet."
               pluginManufacturer="LIM" pluginManufacturerCode="LIM!" pluginCode="RoMe"
               pluginChannelConfigs="{1,1}, {2,2}" defines="JUCE_MODAL_LOOPS_PERMITTED = 1">
   <MAINGROUP id="RSp2xU" name="RotateMe">

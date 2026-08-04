@@ -1,5 +1,6 @@
 #include "Saturation.h"
 #include "DSPValues.h"
+
 using namespace DSPValues;
 
 
@@ -30,7 +31,7 @@ void Saturation::processBlock(AudioBuffer<float> &buffer)
     for (int s = 0; s < numSamples; s++)
     {
         auto driveValue = drive.getNextValue();
-        auto mix = jmap(driveValue, 0.1f, 12.0f, 0.0f, 0.1f);
+        auto mix = jmap(driveValue, 0.1f, 12.0f, 0.0f, 1.0f);
         
         auto sampleLeft = leftCh[s];
         auto satSampleLeft = (saturationType == 1) ? softHard(sampleLeft, 0.9f, driveValue) : tube(sampleLeft, driveValue);
@@ -55,7 +56,7 @@ inline float Saturation::softHard(float sample, float threshold, float driveValu
     
     if (sample < -threshold)
     {
-        return threshold + (sample + threshold) * 0.1f;
+        return - threshold - (sample + threshold) * 0.1f;
     }
     return sample;
 }

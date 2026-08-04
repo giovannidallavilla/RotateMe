@@ -2,6 +2,7 @@
 
 #include <JuceHeader.h>
 #include "DSPValues.h"
+
 using namespace DSPValues;
 
 
@@ -89,13 +90,14 @@ PitchDelay::~PitchDelay() {}
 
 void PitchDelay::prepareToPlay(float newSampleRate, float maxNumSamples)
 {
+    sampleRate = newSampleRate;
+    
     for (int ch = 0; ch < 2; ch++)
     {
         smoothedDelay[ch].reset(sampleRate, defaultRamp);
     }
     
     writeIndex = 0;
-    sampleRate = newSampleRate;
     memorySize = roundToInt(maxDelayTimeS * sampleRate) + maxNumSamples;
     
     memory.setSize(2, memorySize);

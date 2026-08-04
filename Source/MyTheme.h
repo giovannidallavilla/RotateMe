@@ -1,7 +1,5 @@
 #pragma once
-
 #include <JuceHeader.h>
-
 
 class MyLookAndFeel : public LookAndFeel_V4
 {
