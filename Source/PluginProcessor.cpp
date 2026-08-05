@@ -211,12 +211,13 @@ void RotateMeAudioProcessor::updateAudioParameters()
 
 void RotateMeAudioProcessor::loadFactoryPreset(int index)
 {
-    if (index < presetCount)
-    {
-        factoryPresets.resize(presetCount);
-        factoryPresetsNames.removeRange(presetCount, factoryPresetsNames.size() - presetCount);
-    }
-    if (isPositiveAndBelow(index, (int)factoryPresets.size()))
+    int numPresets = static_cast<int>(factoryPresets.size());
+    if (numPresets == 0)
+        return;
+
+    index = (index % numPresets + numPresets) % numPresets;
+
+    if (isPositiveAndBelow(index, numPresets))
     {
         const auto preset = factoryPresets[index];
         if (preset.data != nullptr && preset.size > 0)
