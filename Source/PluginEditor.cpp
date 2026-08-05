@@ -65,7 +65,10 @@ void RotateMeAudioProcessorEditor::paint (juce::Graphics& g)
 
 void RotateMeAudioProcessorEditor::resized()
 {
-    woodTexture = generateWoodTexture();
+    if (woodTexture.isNull() || woodTexture.getWidth() != getWidth() || woodTexture.getHeight() != getHeight())
+    {
+        woodTexture = generateWoodTexture();
+    }
     
     commandPlate.setBounds(-78 + window.padding_left, window.padding_top - 90, commandP.w, commandP.h);
     presetPlate.setBounds(presetP.x, presetP.y, presetP.w, presetP.h);
@@ -221,14 +224,14 @@ void RotateMeAudioProcessorEditor::setupPresetBrowser()
     
     nextPreset.onClick = [this]
     {
-        audioProcessor.loadFactoryPreset(audioProcessor.currentPresetIndex - 1);
+        audioProcessor.loadFactoryPreset(audioProcessor.currentPresetIndex + 1);
         currentPreset = audioProcessor.currentPresetIndex;
         updatePresetBrowser();
     };
     
     previousPreset.onClick = [this]
     {
-        audioProcessor.loadFactoryPreset(audioProcessor.currentPresetIndex + 1);
+        audioProcessor.loadFactoryPreset(audioProcessor.currentPresetIndex - 1);
         currentPreset = audioProcessor.currentPresetIndex;
         updatePresetBrowser();
     };
@@ -252,44 +255,51 @@ void RotateMeAudioProcessorEditor::updatePresetBrowser()
 
 void RotateMeAudioProcessorEditor::loadPreset()
 {
-    auto defaultLocation = File::getSpecialLocation(File::commonDocumentsDirectory);
-    FileChooser chooser("Select preset...", defaultLocation, "*.xml");
+    auto defaultLocation = File::getSpecialLocation(File::userDocumentsDirectory);
+    fileChooser = std::make_unique<FileChooser>("Select preset...", defaultLocation, "*.xml");
     
-    if (chooser.browseForFileToOpen())
-    {
-        auto file = chooser.getResult();
-        MemoryBlock data;
-        
-        if (file.loadFileAsData(data))
+    fileChooser->launchAsync(FileBrowserComponent::openMode | FileBrowserComponent::canSelectFiles,
+        [this](const FileChooser& chooser)
         {
-            audioProcessor.addPreset(file.getFileNameWithoutExtension(), data.getData(), (int)data.getSize());
-        }
-        updatePresetBrowser();
-    }
+            auto file = chooser.getResult();
+            if (file.existsAsFile())
+            {
+                MemoryBlock data;
+                if (file.loadFileAsData(data))
+                {
+                    audioProcessor.addPreset(file.getFileNameWithoutExtension(), data.getData(), (int)data.getSize());
+                }
+                updatePresetBrowser();
+            }
+        });
 }
 
 
 void RotateMeAudioProcessorEditor::savePreset()
 {
-    auto defaultLocation = File::getSpecialLocation(File::commonDocumentsDirectory);
-    FileChooser chooser("Save preset...", defaultLocation, "*.xml");
+    auto defaultLocation = File::getSpecialLocation(File::userDocumentsDirectory);
+    fileChooser = std::make_unique<FileChooser>("Save preset...", defaultLocation, "*.xml");
     
-    if (chooser.browseForFileToSave(true))
-    {
-        auto file = chooser.getResult();
-        if (file.existsAsFile())
+    fileChooser->launchAsync(FileBrowserComponent::saveMode | FileBrowserComponent::canSelectFiles | FileBrowserComponent::warnAboutOverwriting,
+        [this](const FileChooser& chooser)
         {
-            file.deleteFile();
-        }
-        
-        FileOutputStream output(file);
-        if (output.openedOk())
-        {
-            MemoryBlock data;
-            audioProcessor.getStateInformation(data);
-            output.write(data.getData(), data.getSize());
-        }
-    }
+            auto file = chooser.getResult();
+            if (file != File{})
+            {
+                if (file.existsAsFile())
+                {
+                    file.deleteFile();
+                }
+                
+                FileOutputStream output(file);
+                if (output.openedOk())
+                {
+                    MemoryBlock data;
+                    audioProcessor.getStateInformation(data);
+                    output.write(data.getData(), data.getSize());
+                }
+            }
+        });
 }
 
 

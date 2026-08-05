@@ -91,6 +91,8 @@ private:
     
     int currentPreset = 0;
     
+    std::unique_ptr<juce::FileChooser> fileChooser;
+    
     RotaryVisualizer rotaryVisualizer;
     
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (RotateMeAudioProcessorEditor)
