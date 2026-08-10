@@ -91,7 +91,7 @@ PitchDelay::~PitchDelay() {}
 void PitchDelay::prepareToPlay(float newSampleRate, float maxNumSamples)
 {
     sampleRate = newSampleRate;
-    
+        
     for (int ch = 0; ch < 2; ch++)
     {
         smoothedDelay[ch].reset(sampleRate, defaultRamp);
@@ -130,18 +130,29 @@ void PitchDelay::processBlock(AudioBuffer<float> &buffer, AudioBuffer<float> &mo
                 delayMs = jlimit(3.0f, 9.0f, delayMs);
                 float delaySamples = delayMs * 0.001f * sampleRate;
 
-                smoothedDelay[ch].setTargetValue(delaySamples);
-                float d = smoothedDelay[ch].getNextValue();
-                float readIndex = writeIndex - d;
-                if (readIndex < 0.0f)
-                    readIndex += memorySize;
+                float readIndex = (float)writeIndex - delaySamples;
+                while (readIndex < 0.0f)
+                {
+                    readIndex += (float)memorySize;
+                }
+                
                 int i0 = (int)readIndex;
+                int i_prev = (i0 - 1 + memorySize) % memorySize;
                 int i1 = (i0 + 1) % memorySize;
+                int i2 = (i0 + 2) % memorySize;
                 float frac = readIndex - (float)i0;
-
+                
+                float ym1 = delayData[ch][i_prev];
                 float y0 = delayData[ch][i0];
                 float y1 = delayData[ch][i1];
-                float out = y0 + frac * (y1 - y0);
+                float y2 = delayData[ch][i2];
+                
+                float c0 = y0;
+                float c1 = 0.5f * (y1 - ym1);
+                float c2 = ym1 - 2.5f * y0 + 2.0f * y1 - 0.5f * y2;
+                float c3 = 0.5f * (y2 - ym1) + 1.5f * (y0 - y1);
+                
+                float out = ((c3 * frac + c2) * frac + c1) * frac + c0;
 
                 delayData[ch][writeIndex] = bufferData[ch][s];
 

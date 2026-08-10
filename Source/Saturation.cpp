@@ -31,17 +31,22 @@ void Saturation::processBlock(AudioBuffer<float> &buffer)
     for (int s = 0; s < numSamples; s++)
     {
         auto driveValue = drive.getNextValue();
-        auto mix = jmap(driveValue, 0.1f, 12.0f, 0.0f, 1.0f);
         
-        auto sampleLeft = leftCh[s];
-        auto satSampleLeft = (saturationType == 1) ? softHard(sampleLeft, 0.9f, driveValue) : tube(sampleLeft, driveValue);
-        leftCh[s] = sampleLeft * (1 - mix) + satSampleLeft * mix;
-        
-        if (rightCh != nullptr)
+        for (int ch = 0; ch < numChannels; ch++)
         {
-            auto sampleRight = rightCh[s];
-            auto satSampleRight = (saturationType == 1) ? softHard(sampleRight, 0.9f, driveValue) : tube(sampleRight, driveValue);
-            rightCh[s] = sampleRight * (1 - mix) + satSampleRight * mix;
+            float in = data[ch][s];
+            float out = 0.0f;
+            
+            if (saturationType == 0)
+            {
+                out = tube(in, driveValue);
+            }
+            else
+            {
+                out = softHard(in, 0.85f, driveValue);
+            }
+            
+            data[ch][s] = out;
         }
     }
 }
@@ -49,22 +54,26 @@ void Saturation::processBlock(AudioBuffer<float> &buffer)
 
 inline float Saturation::softHard(float sample, float threshold, float driveValue)
 {
-    if (sample > threshold)
-    {
-        return threshold + (sample - threshold) * 0.1f;
-    }
+    float driven = sample * driveValue;
     
-    if (sample < -threshold)
+    if (driven > threshold)
     {
-        return - threshold - (sample + threshold) * 0.1f;
+        return threshold + (driven - threshold) * 0.1f;
     }
-    return sample;
+    else if (driven < -threshold)
+    {
+        return -threshold + (driven + threshold) * 0.1f;
+    }
+    return driven;
 }
 
 inline float Saturation::tube(float sample, float driveValue)
 {
-    auto satSample = sample > 0.0f ? tanh(sample * 1.2f * driveValue) : tanh(sample * 0.6f * driveValue);
-    return satSample;
+    float driven = sample * driveValue;
+    float offset = 0.1f;
+    float x = driven + offset;
+    float sat = std::tanh(x) - std::tanh(offset);
+    return sat;
 }
 
 
