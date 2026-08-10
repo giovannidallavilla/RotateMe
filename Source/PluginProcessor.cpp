@@ -42,8 +42,11 @@ RotateMeAudioProcessor::~RotateMeAudioProcessor() {}
 
 void RotateMeAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
 {
-    rotary.prepareToPlay(sampleRate, samplesPerBlock);
-    saturator.prepareToPlay(2, samplesPerBlock, sampleRate);
+    const int numChannels = getTotalNumInputChannels();
+    const bool isStereo   = (numChannels == 2);
+    
+    rotary.prepareToPlay(sampleRate, samplesPerBlock, numChannels);
+    saturator.prepareToPlay(numChannels, samplesPerBlock, sampleRate);
     drywetter.prepareToPlay(sampleRate, samplesPerBlock);
     timeModulation.prepareToPlay(sampleRate);
     ampModulation.prepareToPlay(sampleRate);
@@ -55,6 +58,11 @@ void RotateMeAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlo
     pitchModulation.clear();
     gainModulation.setSize(2, samplesPerBlock);
     gainModulation.clear();
+
+    if (isStereo)
+        pitchLfo.setStereoAngleDegrees(90.0f);
+    else
+        pitchLfo.setStereoAngleDegrees(0.0f);
 
     prevDryWet    = -1.0f;
     prevSatAmount = -1.0f;
@@ -81,17 +89,19 @@ void RotateMeAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juc
     updateAudioParameters();
     
     const auto numSamples = buffer.getNumSamples();
+    const bool isStereo   = (buffer.getNumChannels() == 2);
     
-    pitchLfo.generateBlock(pitchModulation, numSamples);
-    ampLfo.generateBlock(gainModulation, numSamples);
+    pitchLfo.generateBlock(pitchModulation, numSamples, isStereo);
+    ampLfo.generateBlock(gainModulation,    numSamples, isStereo);
     timeModulation.processBlock(pitchModulation, numSamples);
-    ampModulation.processBlock(gainModulation, numSamples);
+    ampModulation.processBlock(gainModulation,   numSamples);
     
     drywetter.copyDrySignal(buffer);
     saturator.processBlock(buffer);
     rotary.processBlock(buffer, pitchModulation, gainModulation);
     drywetter.mixSignals(buffer);
 }
+
 
 
 bool RotateMeAudioProcessor::hasEditor() const

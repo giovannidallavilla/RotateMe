@@ -1,6 +1,7 @@
 #pragma once
 
 #include <JuceHeader.h>
+#include "Cabinet.h"
 
 class PitchDelay
 {
@@ -8,7 +9,7 @@ class PitchDelay
     PitchDelay();
     ~PitchDelay();
     
-    void prepareToPlay(float newSampleRate, float maxNumSamples);
+    void prepareToPlay(float newSampleRate, float maxNumSamples, int numChannels);
     
     void releaseResources();
     
@@ -53,7 +54,7 @@ class Rotary
     Rotary();
     ~Rotary();
     
-    void prepareToPlay(float newSampleRate, float maxNumSamples);
+    void prepareToPlay(float newSampleRate, float maxNumSamples, int numChannels);
     
     void releaseResources();
     
@@ -65,9 +66,11 @@ class Rotary
     float sampleRate = 1.0;
     float numSamples = 1.0;
     float pitchDepth = 1.0;
+    int   channelCount = 2;
     
     PitchDelay delay;
     Amplifier amp;
+    Cabinet cabinet;
     
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(Rotary)
 };

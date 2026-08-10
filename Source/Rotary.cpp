@@ -51,13 +51,20 @@ Rotary::Rotary() : amp(1.0f)
 Rotary::~Rotary() {}
 
 
-void Rotary::prepareToPlay(float newSampleRate, float maxNumSamples)
+void Rotary::prepareToPlay(float newSampleRate, float maxNumSamples, int numChannels)
 {
-    sampleRate = newSampleRate;
-    numSamples = maxNumSamples;
+    sampleRate   = newSampleRate;
+    numSamples   = maxNumSamples;
+    channelCount = numChannels;
     
-    delay.prepareToPlay(sampleRate, numSamples);
+    delay.prepareToPlay(sampleRate, numSamples, channelCount);
     amp.prepareToPlay(sampleRate);
+    
+    dsp::ProcessSpec spec;
+    spec.sampleRate      = sampleRate;
+    spec.maximumBlockSize = (uint32)maxNumSamples;
+    spec.numChannels     = (uint32)channelCount;
+    cabinet.prepareToPlay(spec);
 }
 
 
@@ -72,6 +79,7 @@ void Rotary::processBlock(AudioBuffer<float> &buffer, AudioBuffer<float> &timeMo
 {
     delay.processBlock(buffer, timeModulation, pitchDepth);
     amp.processBlock(buffer, ampModulation);
+    cabinet.processBlock(buffer);
 }
 
 
@@ -88,11 +96,11 @@ PitchDelay::PitchDelay() {}
 PitchDelay::~PitchDelay() {}
 
 
-void PitchDelay::prepareToPlay(float newSampleRate, float maxNumSamples)
+void PitchDelay::prepareToPlay(float newSampleRate, float maxNumSamples, int numChannels)
 {
     sampleRate = newSampleRate;
         
-    for (int ch = 0; ch < 2; ch++)
+    for (int ch = 0; ch < numChannels; ch++)
     {
         smoothedDelay[ch].reset(sampleRate, defaultRamp);
     }
@@ -100,7 +108,7 @@ void PitchDelay::prepareToPlay(float newSampleRate, float maxNumSamples)
     writeIndex = 0;
     memorySize = roundToInt(maxDelayTimeS * sampleRate) + maxNumSamples;
     
-    memory.setSize(2, memorySize);
+    memory.setSize(numChannels, memorySize);
     memory.clear();
 }
 

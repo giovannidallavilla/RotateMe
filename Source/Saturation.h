@@ -26,4 +26,6 @@ class Saturation
     inline float tube(float sample, float driveValue);
     
     inline float softHard(float sample, float threshold, float driveValue);
+    
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(Saturation)
 };
