@@ -12,7 +12,7 @@ class LowFrequencyOscillator
     
     void releaseResources();
     
-    void generateBlock(AudioBuffer<float>& buffer, const int maxNumSamples);
+    void generateBlock(AudioBuffer<float>& buffer, const int maxNumSamples, bool stereo = true);
     
     float generateSampleLeft(float freq);
     float generateSampleRight(float freq);
@@ -31,12 +31,16 @@ class LowFrequencyOscillator
     
     float getCurrentFrequency();
     
+    void setStereoAngleDegrees(float newValue);
+    
     private:
     float sampleRate = 1.0;
     float samplePeriod = 1.0;
     float phaseStateLeft = 0.0;
     float currentFrequency = 1.0;
     float phaseStateRight = MathConstants<float>::halfPi;
+    float stereoPhaseOffset = MathConstants<float>::halfPi;
+    bool isStereo = true;
     
     SmoothedValue<float, ValueSmoothingTypes::Multiplicative> frequency;
     

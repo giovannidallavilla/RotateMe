@@ -73,18 +73,27 @@ void LowFrequencyOscillator::recoverLastFrequency()
 }
 
 
-void LowFrequencyOscillator::generateBlock(AudioBuffer<float> &buffer, const int maxNumSamples)
+void LowFrequencyOscillator::generateBlock(AudioBuffer<float> &buffer, const int maxNumSamples, bool stereo)
 {
+    isStereo = stereo;
     auto data = buffer.getArrayOfWritePointers();
     
     for (int s = 0; s < maxNumSamples; s++)
     {
         float freq = frequency.getNextValue();
         const float sampleLeft = generateSampleLeft(freq);
-        const float sampleRight = generateSampleRight(freq);
         
         data[0][s] = sampleLeft;
-        data[1][s] = sampleRight;
+        
+        if (isStereo)
+        {
+            data[1][s] = generateSampleRight(freq);
+        }
+        else
+        {
+            phaseStateRight += (freq * samplePeriod);
+            phaseStateRight -= static_cast<int>(phaseStateRight);
+        }
     }
 }
 
@@ -116,6 +125,15 @@ float LowFrequencyOscillator::generateSampleRight(float freq)
 float LowFrequencyOscillator::getCurrentFrequency()
 {
     return currentFrequency;
+}
+
+void LowFrequencyOscillator::setStereoAngleDegrees(float newValue)
+{
+    float angleNormalized = (newValue / 360.0f);
+    stereoPhaseOffset = angleNormalized * MathConstants<float>::twoPi;
+    
+    phaseStateRight = phaseStateLeft + angleNormalized;
+    phaseStateRight -= static_cast<int>(phaseStateRight);
 }
 
 
